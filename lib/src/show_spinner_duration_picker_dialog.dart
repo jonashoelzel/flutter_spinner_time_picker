@@ -29,6 +29,9 @@ Future<Duration?> showSpinnerDurationPicker(
   EdgeInsets? contentPadding,
   String? cancelButtonLabel,
   String? okButtonLabel,
+  bool hideSeconds = false,
+  bool hideMinutes = false,
+  bool hideHours = false,
 }) async {
   // Get the color scheme and screen size from the current theme
   final colorScheme = Theme.of(context).colorScheme;
@@ -133,6 +136,9 @@ Future<Duration?> showSpinnerDurationPicker(
               spinnerBgColor: _spinnerBgColor,
               spinnerHeight: _spinnerHeight,
               spinnerWidth: _spinnerWidth,
+              hideSeconds: hideSeconds,
+              hideMinutes: hideMinutes,
+              hideHours: hideHours,
             ),
           ),
           actions: actionsButtons,

@@ -16,8 +16,10 @@ class SpinnerDurationPicker extends StatefulWidget {
       selectedTextStyle; // Text style for selected duration elements
   final TextStyle
       nonSelectedTextStyle; // Text style for non-selected duration elements
-  final void Function(Duration selected)
-      onChangedSelectedDuration; // Callback for duration selection
+  final void Function(Duration selected) onChangedSelectedDuration;
+  final bool hideSeconds;
+  final bool hideMinutes;
+  final bool hideHours;
 
   const SpinnerDurationPicker({
     Key? key,
@@ -30,6 +32,9 @@ class SpinnerDurationPicker extends StatefulWidget {
     required this.selectedTextStyle,
     required this.nonSelectedTextStyle,
     required this.onChangedSelectedDuration,
+    this.hideSeconds = false,
+    this.hideMinutes = false,
+    this.hideHours = false,
   }) : super(key: key);
 
   @override
@@ -61,12 +66,18 @@ class _SpinnerDurationPickerState extends State<SpinnerDurationPicker> {
       mainAxisAlignment: MainAxisAlignment.center,
       textDirection: TextDirection.ltr,
       children: [
-        _hourPicker(),
-        _durationSeparator(context, 'h'),
-        _minutePicker(),
-        _durationSeparator(context, 'm'),
-        _secondPicker(),
-        _durationSeparator(context, 's'),
+        widget.hideHours ? const SizedBox() : _hourPicker(),
+        widget.hideHours
+            ? const SizedBox()
+            : _durationSeparator(context, 'h'),
+        widget.hideMinutes ? const SizedBox() : _minutePicker(),
+        widget.hideMinutes
+            ? const SizedBox()
+            : _durationSeparator(context, 'm'),
+        widget.hideSeconds ? const SizedBox() : _secondPicker(),
+        widget.hideSeconds
+            ? const SizedBox()
+            : _durationSeparator(context, 's'),
       ],
     );
   }
@@ -114,7 +125,7 @@ class _SpinnerDurationPickerState extends State<SpinnerDurationPicker> {
   // Build the hour picker
   SpinnerNumericPicker _hourPicker() {
     return SpinnerNumericPicker(
-      maxValue: 99,
+      maxValue: 100,
       initValue: selectedHour,
       height: widget.spinnerHeight,
       width: widget.spinnerWidth,
@@ -144,7 +155,6 @@ class _SpinnerDurationPickerState extends State<SpinnerDurationPicker> {
       ),
     );
   }
-
 
   // Update the selected duration based on user choices
   void setSelectedDuration() {
