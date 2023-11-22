@@ -6,7 +6,8 @@ import 'spinner_number_picker_widget.dart';
 // Define a StatefulWidget for a custom duration picker widget
 class SpinnerDurationPicker extends StatefulWidget {
   // Initialize parameters for the duration picker
-  final Duration initDuration; // Initial duration value
+  final Duration? initDuration; // Initial duration value
+  final ValueNotifier<Duration>? forceUpdateDurationNotifier;
   final double spinnerHeight; // Height of the widget
   final double spinnerWidth; // Width of the widget
   final double elementsSpace; // Space between hour and minute pickers
@@ -22,8 +23,8 @@ class SpinnerDurationPicker extends StatefulWidget {
   final bool hideHours;
 
   const SpinnerDurationPicker({
-    Key? key,
-    required this.initDuration,
+    this.initDuration,
+    this.forceUpdateDurationNotifier,
     required this.spinnerHeight,
     required this.spinnerWidth,
     required this.elementsSpace,
@@ -35,7 +36,11 @@ class SpinnerDurationPicker extends StatefulWidget {
     this.hideSeconds = false,
     this.hideMinutes = false,
     this.hideHours = false,
-  }) : super(key: key);
+    super.key,
+  }) : assert(
+            (initDuration != null || forceUpdateDurationNotifier != null) &&
+                (initDuration == null || forceUpdateDurationNotifier == null),
+            'Either initDuration xor durationChangeNotifier must be provided');
 
   @override
   State<SpinnerDurationPicker> createState() => _SpinnerDurationPickerState();
@@ -44,48 +49,65 @@ class SpinnerDurationPicker extends StatefulWidget {
 // Define the state for the SpinnerDurationPicker widget
 class _SpinnerDurationPickerState extends State<SpinnerDurationPicker> {
   int selectedHour = 0; // Selected hour value
+  ValueNotifier<int> selectedHourNotifier = ValueNotifier<int>(0);
+
   int selectedMinute = 0; // Selected minute value
+  ValueNotifier<int> selectedMinuteNotifier = ValueNotifier<int>(0);
+
   int selectedSecond = 0; // Selected second value
+  ValueNotifier<int> selectedSecondNotifier = ValueNotifier<int>(0);
+
+  late ValueNotifier<Duration> durationChangeNotifier;
 
   @override
   void initState() {
-    // Initialize state variables based on the initial duration
-    final selectedDuration = widget.initDuration;
-    setState(() {
-      selectedHour = selectedDuration.inHours;
-      selectedMinute = selectedDuration.inMinutes.remainder(60);
-      selectedSecond = selectedDuration.inSeconds.remainder(60);
-    });
+    if (widget.forceUpdateDurationNotifier == null) {
+      durationChangeNotifier = ValueNotifier(widget.initDuration!);
+    } else {
+      durationChangeNotifier = widget.forceUpdateDurationNotifier!;
+    }
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    // Build the duration picker layout
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      textDirection: TextDirection.ltr,
-      children: [
-        widget.hideHours ? const SizedBox() : _hourPicker(),
-        widget.hideHours
-            ? const SizedBox()
-            : _durationSeparator(context, 'h'),
-        widget.hideMinutes ? const SizedBox() : _minutePicker(),
-        widget.hideMinutes
-            ? const SizedBox()
-            : _durationSeparator(context, 'm'),
-        widget.hideSeconds ? const SizedBox() : _secondPicker(),
-        widget.hideSeconds
-            ? const SizedBox()
-            : _durationSeparator(context, 's'),
-      ],
+    return ValueListenableBuilder(
+      valueListenable: durationChangeNotifier,
+      builder: (context, value, _) {
+        selectedHourNotifier.value = selectedHour = value.inHours;
+        selectedMinuteNotifier.value =
+            selectedMinute = value.inMinutes.remainder(60);
+        selectedSecondNotifier.value =
+            selectedSecond = value.inSeconds.remainder(60);
+        selectedSecondNotifier =
+            ValueNotifier<int>(value.inSeconds.remainder(60));
+
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          textDirection: TextDirection.ltr,
+          children: [
+            widget.hideHours ? const SizedBox() : _hourPicker(),
+            widget.hideHours
+                ? const SizedBox()
+                : _durationSeparator(context, 'h'),
+            widget.hideMinutes ? const SizedBox() : _minutePicker(),
+            widget.hideMinutes
+                ? const SizedBox()
+                : _durationSeparator(context, 'm'),
+            widget.hideSeconds ? const SizedBox() : _secondPicker(),
+            widget.hideSeconds
+                ? const SizedBox()
+                : _durationSeparator(context, 's'),
+          ],
+        );
+      },
     );
   }
 
   // Build the second picker
   _secondPicker() {
     return SpinnerNumericPicker(
-      initValue: selectedSecond,
+      forceUpdateValueNotifier: selectedSecondNotifier,
       maxValue: 60,
       height: widget.spinnerHeight,
       width: widget.spinnerWidth,
@@ -105,7 +127,7 @@ class _SpinnerDurationPickerState extends State<SpinnerDurationPicker> {
   // Build the minute picker
   SpinnerNumericPicker _minutePicker() {
     return SpinnerNumericPicker(
-      initValue: selectedMinute,
+      forceUpdateValueNotifier: selectedMinuteNotifier,
       maxValue: 60,
       height: widget.spinnerHeight,
       width: widget.spinnerWidth,
@@ -126,7 +148,7 @@ class _SpinnerDurationPickerState extends State<SpinnerDurationPicker> {
   SpinnerNumericPicker _hourPicker() {
     return SpinnerNumericPicker(
       maxValue: 100,
-      initValue: selectedHour,
+      forceUpdateValueNotifier: selectedHourNotifier,
       height: widget.spinnerHeight,
       width: widget.spinnerWidth,
       digitHeight: widget.digitHeight,
@@ -146,12 +168,16 @@ class _SpinnerDurationPickerState extends State<SpinnerDurationPicker> {
   SizedBox _durationSeparator(BuildContext context, String separator) {
     return SizedBox(
       width: widget.elementsSpace,
-      child: Center(
-        child: Text(
-          separator,
-          style: TextStyle(
-              fontSize: 23, color: Theme.of(context).colorScheme.primary),
-        ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(width: 0.15 * widget.elementsSpace),
+          Text(
+            separator,
+            style: TextStyle(
+                fontSize: 23, color: Theme.of(context).colorScheme.primary),
+          ),
+        ],
       ),
     );
   }
