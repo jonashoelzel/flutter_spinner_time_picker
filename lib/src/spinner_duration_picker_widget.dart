@@ -1,5 +1,6 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:flutter/material.dart';
+import 'package:flutter_spinner_time_picker/src/always_change_value_notifier.dart';
 
 import 'spinner_number_picker_widget.dart';
 
@@ -7,7 +8,7 @@ import 'spinner_number_picker_widget.dart';
 class SpinnerDurationPicker extends StatefulWidget {
   // Initialize parameters for the duration picker
   final Duration? initDuration; // Initial duration value
-  final ValueNotifier<Duration>? forceUpdateDurationNotifier;
+  final AlwaysChangeValueNotifier<Duration>? forceUpdateDurationNotifier;
   final double spinnerHeight; // Height of the widget
   final double spinnerWidth; // Width of the widget
   final double elementsSpace; // Space between hour and minute pickers
@@ -49,63 +50,65 @@ class SpinnerDurationPicker extends StatefulWidget {
 // Define the state for the SpinnerDurationPicker widget
 class _SpinnerDurationPickerState extends State<SpinnerDurationPicker> {
   int selectedHour = 0; // Selected hour value
-  ValueNotifier<int> selectedHourNotifier = ValueNotifier<int>(0);
+  AlwaysChangeValueNotifier<int> selectedHourNotifier =
+      AlwaysChangeValueNotifier<int>(0);
 
   int selectedMinute = 0; // Selected minute value
-  ValueNotifier<int> selectedMinuteNotifier = ValueNotifier<int>(0);
+  AlwaysChangeValueNotifier<int> selectedMinuteNotifier =
+      AlwaysChangeValueNotifier<int>(0);
 
   int selectedSecond = 0; // Selected second value
-  ValueNotifier<int> selectedSecondNotifier = ValueNotifier<int>(0);
+  AlwaysChangeValueNotifier<int> selectedSecondNotifier =
+      AlwaysChangeValueNotifier<int>(0);
 
-  late ValueNotifier<Duration> durationChangeNotifier;
+  late AlwaysChangeValueNotifier<Duration> durationChangeNotifier;
 
   @override
   void initState() {
     if (widget.forceUpdateDurationNotifier == null) {
-      durationChangeNotifier = ValueNotifier(widget.initDuration!);
+      durationChangeNotifier = AlwaysChangeValueNotifier(widget.initDuration!);
     } else {
       durationChangeNotifier = widget.forceUpdateDurationNotifier!;
     }
+
+    durationChangeNotifier.addListener(() => setState(() {
+          _setValues();
+        }));
+
     super.initState();
+  }
+
+  void _setValues() {
+    selectedHourNotifier.value =
+        selectedHour = durationChangeNotifier.value.inHours;
+    selectedMinuteNotifier.value =
+        selectedMinute = durationChangeNotifier.value.inMinutes.remainder(60);
+    selectedSecondNotifier.value =
+        selectedSecond = durationChangeNotifier.value.inSeconds.remainder(60);
   }
 
   @override
   Widget build(BuildContext context) {
-    return ValueListenableBuilder(
-      valueListenable: durationChangeNotifier,
-      builder: (context, value, _) {
-        selectedHourNotifier.value = selectedHour = value.inHours;
-        selectedMinuteNotifier.value =
-            selectedMinute = value.inMinutes.remainder(60);
-        selectedSecondNotifier.value =
-            selectedSecond = value.inSeconds.remainder(60);
-        selectedSecondNotifier =
-            ValueNotifier<int>(value.inSeconds.remainder(60));
-
-        return Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          textDirection: TextDirection.ltr,
-          children: [
-            widget.hideHours ? const SizedBox() : _hourPicker(),
-            widget.hideHours
-                ? const SizedBox()
-                : _durationSeparator(context, 'h'),
-            widget.hideMinutes ? const SizedBox() : _minutePicker(),
-            widget.hideMinutes
-                ? const SizedBox()
-                : _durationSeparator(context, 'm'),
-            widget.hideSeconds ? const SizedBox() : _secondPicker(),
-            widget.hideSeconds
-                ? const SizedBox()
-                : _durationSeparator(context, 's'),
-          ],
-        );
-      },
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      textDirection: TextDirection.ltr,
+      children: [
+        widget.hideHours ? const SizedBox() : _hourPicker(),
+        widget.hideHours ? const SizedBox() : _durationSeparator(context, 'h'),
+        widget.hideMinutes ? const SizedBox() : _minutePicker(),
+        widget.hideMinutes
+            ? const SizedBox()
+            : _durationSeparator(context, 'm'),
+        widget.hideSeconds ? const SizedBox() : _secondPicker(),
+        widget.hideSeconds
+            ? const SizedBox()
+            : _durationSeparator(context, 's'),
+      ],
     );
   }
 
   // Build the second picker
-  _secondPicker() {
+  SpinnerNumericPicker _secondPicker() {
     return SpinnerNumericPicker(
       forceUpdateValueNotifier: selectedSecondNotifier,
       maxValue: 60,

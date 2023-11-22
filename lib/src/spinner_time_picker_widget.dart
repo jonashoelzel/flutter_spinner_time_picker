@@ -1,5 +1,6 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:flutter/material.dart';
+import 'package:flutter_spinner_time_picker/src/always_change_value_notifier.dart';
 
 import 'spinner_number_picker_widget.dart';
 
@@ -7,7 +8,7 @@ import 'spinner_number_picker_widget.dart';
 class SpinnerTimePicker extends StatefulWidget {
   // Initialize parameters for the time picker
   final TimeOfDay? initTime; // Initial time value
-  final ValueNotifier<TimeOfDay>? forceUpdateTimeNotifier;
+  final AlwaysChangeValueNotifier<TimeOfDay>? forceUpdateTimeNotifier;
   final bool is24HourFormat; // Indicates if the time format is 24-hour
   final double spinnerHeight; // Height of the widget
   final double spinnerWidth; // Width of the widget
@@ -47,12 +48,14 @@ class _SpinnerTimePickerState extends State<SpinnerTimePicker> {
   DayPeriod selectedDayPeriod = DayPeriod.am; // Selected AM/PM period
 
   int selectedHour = 0; // Selected hour value
-  ValueNotifier<int> selectedHourNotifier = ValueNotifier<int>(0);
+  AlwaysChangeValueNotifier<int> selectedHourNotifier =
+      AlwaysChangeValueNotifier<int>(0);
 
   int selectedMinute = 0; // Selected minute value
-  ValueNotifier<int> selectedMinuteNotifier = ValueNotifier<int>(0);
+  AlwaysChangeValueNotifier<int> selectedMinuteNotifier =
+      AlwaysChangeValueNotifier<int>(0);
 
-  late ValueNotifier<TimeOfDay> timeChangeNotifier;
+  late AlwaysChangeValueNotifier<TimeOfDay> timeChangeNotifier;
 
   // Options for AM and PM periods
   final _dayPeriodOptions = const [DayPeriod.am, DayPeriod.pm];
@@ -61,10 +64,14 @@ class _SpinnerTimePickerState extends State<SpinnerTimePicker> {
   void initState() {
     // Initialize state variables based on the initial time
     if (widget.forceUpdateTimeNotifier == null) {
-      timeChangeNotifier = ValueNotifier<TimeOfDay>(widget.initTime!);
+      timeChangeNotifier =
+          AlwaysChangeValueNotifier<TimeOfDay>(widget.initTime!);
     } else {
       timeChangeNotifier = widget.forceUpdateTimeNotifier!;
     }
+
+    timeChangeNotifier.addListener(() => setState(() {}));
+
     super.initState();
   }
 
@@ -76,29 +83,28 @@ class _SpinnerTimePickerState extends State<SpinnerTimePicker> {
     };
   }
 
+  void _setValues() {
+    selectedDayPeriod = timeChangeNotifier.value.period;
+    selectedHour = !widget.is24HourFormat && selectedDayPeriod == DayPeriod.pm
+        ? timeChangeNotifier.value.hour - 12
+        : timeChangeNotifier.value.hour;
+    selectedMinute = timeChangeNotifier.value.minute;
+  }
+
   @override
   Widget build(BuildContext context) {
     // Build the time picker layout
-    return ValueListenableBuilder(
-      valueListenable: timeChangeNotifier,
-      builder: (context, value, _) {
-        selectedDayPeriod = value.period;
-        selectedHour = !widget.is24HourFormat && selectedDayPeriod == DayPeriod.pm
-            ? value.hour - 12
-            : value.hour;
-        selectedMinute = value.minute;
-        return Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          textDirection: TextDirection.ltr,
-          children: [
-            _hourPicker(),
-            _timeSeparator(context),
-            _minutePicker(),
-            if (!widget.is24HourFormat) SizedBox(width: 0.7 * widget.elementsSpace),
-            if (!widget.is24HourFormat) _dayPeriodSelector(),
-          ],
-        );
-      }
+    _setValues();
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      textDirection: TextDirection.ltr,
+      children: [
+        _hourPicker(),
+        _timeSeparator(context),
+        _minutePicker(),
+        if (!widget.is24HourFormat) SizedBox(width: 0.7 * widget.elementsSpace),
+        if (!widget.is24HourFormat) _dayPeriodSelector(),
+      ],
     );
   }
 

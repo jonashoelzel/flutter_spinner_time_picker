@@ -36,17 +36,17 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   TimeOfDay selectedTime = TimeOfDay.now();
-  late ValueNotifier<TimeOfDay> timeChangeNotifier;
+  late AlwaysChangeValueNotifier<TimeOfDay> timeChangeNotifier;
 
   Duration selectedDuration = const Duration(hours: 1, minutes: 20, seconds: 5);
-  late ValueNotifier<Duration> durationChangeNotifier;
+  late AlwaysChangeValueNotifier<Duration> durationChangeNotifier;
 
   bool showSecondPage = false;
 
   @override
   void initState() {
-    timeChangeNotifier = ValueNotifier(selectedTime);
-    durationChangeNotifier = ValueNotifier(selectedDuration);
+    timeChangeNotifier = AlwaysChangeValueNotifier(selectedTime);
+    durationChangeNotifier = AlwaysChangeValueNotifier(selectedDuration);
     super.initState();
   }
 

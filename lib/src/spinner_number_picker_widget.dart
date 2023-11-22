@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_spinner_time_picker/src/always_change_value_notifier.dart';
 
 // Define a StatefulWidget for a time element picker widget
 class SpinnerNumericPicker extends StatefulWidget {
   // Initialize parameters for the time element picker
-  final ValueNotifier<int>
+  final AlwaysChangeValueNotifier<int>
       _forceUpdateValueNotifier; // Initial value of the picker
   final int maxValue; // Maximum value of the picker
   final double height; // Height of the widget
@@ -17,7 +18,7 @@ class SpinnerNumericPicker extends StatefulWidget {
       onSelectedItemChanged; // Callback for value selection
 
   SpinnerNumericPicker({
-    ValueNotifier<int>? forceUpdateValueNotifier,
+    AlwaysChangeValueNotifier<int>? forceUpdateValueNotifier,
     required this.maxValue,
     required this.height,
     required this.width,
@@ -28,7 +29,7 @@ class SpinnerNumericPicker extends StatefulWidget {
     required this.spinnerBgColor,
     super.key,
   }) : _forceUpdateValueNotifier =
-            forceUpdateValueNotifier ?? ValueNotifier<int>(0);
+            forceUpdateValueNotifier ?? AlwaysChangeValueNotifier<int>(0);
 
   @override
   State<SpinnerNumericPicker> createState() => _SpinnerNumericPickerState();
@@ -39,7 +40,7 @@ class _SpinnerNumericPickerState extends State<SpinnerNumericPicker> {
   late FixedExtentScrollController scrollController;
 
   late int _selectedValue;
-  late ValueNotifier<int> forceUpdateValueNotifier;
+  late AlwaysChangeValueNotifier<int> forceUpdateValueNotifier;
 
   @override
   void initState() {
