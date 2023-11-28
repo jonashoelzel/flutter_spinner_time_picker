@@ -70,7 +70,7 @@ class _SpinnerTimePickerState extends State<SpinnerTimePicker> {
       timeChangeNotifier = widget.forceUpdateTimeNotifier!;
     }
 
-    timeChangeNotifier.addListener(() => setState(() => _setValues()));
+    timeChangeNotifier.addListener(onChangeRunner);
 
     _setValues();
 
@@ -83,6 +83,14 @@ class _SpinnerTimePickerState extends State<SpinnerTimePicker> {
       DayPeriod.am => [true, false], // AM is selected
       DayPeriod.pm => [false, true], // PM is selected
     };
+  }
+
+  onChangeRunner() => setState(() => _setValues());
+
+  @override
+  void dispose() {
+    timeChangeNotifier.removeListener(onChangeRunner);
+    super.dispose();
   }
 
   void _setValues() {

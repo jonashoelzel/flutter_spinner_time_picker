@@ -71,11 +71,19 @@ class _SpinnerDurationPickerState extends State<SpinnerDurationPicker> {
       durationChangeNotifier = widget.forceUpdateDurationNotifier!;
     }
 
-    durationChangeNotifier.addListener(() => setState(() => _setValues()));
+    durationChangeNotifier.addListener(onChangeRunner);
 
     _setValues();
 
     super.initState();
+  }
+
+  onChangeRunner() => setState(() => _setValues());
+
+  @override
+  void dispose() {
+    durationChangeNotifier.removeListener(onChangeRunner);
+    super.dispose();
   }
 
   void _setValues() {
