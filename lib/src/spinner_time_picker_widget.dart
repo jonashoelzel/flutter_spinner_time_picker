@@ -70,7 +70,9 @@ class _SpinnerTimePickerState extends State<SpinnerTimePicker> {
       timeChangeNotifier = widget.forceUpdateTimeNotifier!;
     }
 
-    timeChangeNotifier.addListener(() => setState(() {}));
+    timeChangeNotifier.addListener(() => setState(() => _setValues()));
+
+    _setValues();
 
     super.initState();
   }
@@ -85,16 +87,16 @@ class _SpinnerTimePickerState extends State<SpinnerTimePicker> {
 
   void _setValues() {
     selectedDayPeriod = timeChangeNotifier.value.period;
-    selectedHour = !widget.is24HourFormat && selectedDayPeriod == DayPeriod.pm
-        ? timeChangeNotifier.value.hour - 12
-        : timeChangeNotifier.value.hour;
-    selectedMinute = timeChangeNotifier.value.minute;
+    selectedHourNotifier.value = selectedHour =
+        !widget.is24HourFormat && selectedDayPeriod == DayPeriod.pm
+            ? timeChangeNotifier.value.hour - 12
+            : timeChangeNotifier.value.hour;
+    selectedMinuteNotifier.value =
+        selectedMinute = timeChangeNotifier.value.minute;
   }
 
   @override
   Widget build(BuildContext context) {
-    // Build the time picker layout
-    _setValues();
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       textDirection: TextDirection.ltr,
