@@ -7,6 +7,7 @@ import '../spinner_numeric_picker_widget.dart';
 class SpinnerNumberPicker extends StatelessWidget {
   final AlwaysChangeValueNotifier<int> _forceUpdateValueNotifier;
   final int maxValue; // Maximum value of the picker
+  final int steps; // Steps for the picker
   final double spinnerHeight; // Height of the widget
   final double spinnerWidth; // Width of the widget
   final double elementsSpace; // Space between hour and minute pickers
@@ -22,6 +23,7 @@ class SpinnerNumberPicker extends StatelessWidget {
     AlwaysChangeValueNotifier<int>? forceUpdateValueNotifier,
     int? initValue,
     required this.maxValue,
+    this.steps = 1,
     required this.spinnerHeight,
     required this.spinnerWidth,
     required this.elementsSpace,
@@ -48,6 +50,7 @@ class SpinnerNumberPicker extends StatelessWidget {
         SpinnerNumericPicker(
           forceUpdateValueNotifier: _forceUpdateValueNotifier,
           maxValue: maxValue,
+          steps: steps,
           height: spinnerHeight,
           width: spinnerWidth,
           digitHeight: digitHeight,

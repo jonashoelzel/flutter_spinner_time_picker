@@ -9,6 +9,7 @@ class SpinnerNumericPicker extends StatefulWidget {
   final AlwaysChangeValueNotifier<int>
       _forceUpdateValueNotifier; // Initial value of the picker
   final int maxValue; // Maximum value of the picker
+  final int steps; // Steps for the picker
   final double height; // Height of the widget
   final double width; // Width of the widget
   final double digitHeight; // Height of individual time elements
@@ -21,7 +22,7 @@ class SpinnerNumericPicker extends StatefulWidget {
 
   SpinnerNumericPicker({
     AlwaysChangeValueNotifier<int>? forceUpdateValueNotifier,
-    required this.maxValue,
+    required int maxValue,
     required this.height,
     required this.width,
     required this.digitHeight,
@@ -29,8 +30,10 @@ class SpinnerNumericPicker extends StatefulWidget {
     required this.nonSelectedTextStyle,
     required this.onSelectedItemChanged,
     required this.spinnerBgColor,
+    this.steps = 1,
     super.key,
-  }) : _forceUpdateValueNotifier =
+  })  : maxValue = (maxValue / steps).ceil(),
+        _forceUpdateValueNotifier =
             forceUpdateValueNotifier ?? AlwaysChangeValueNotifier<int>(0);
 
   @override
@@ -44,17 +47,19 @@ class _SpinnerNumericPickerState extends State<SpinnerNumericPicker> {
   late int _selectedValue;
   late AlwaysChangeValueNotifier<int> forceUpdateValueNotifier;
 
+  int _selectedScrollControllerValue() => _selectedValue ~/ widget.steps;
+
   @override
   void initState() {
     // Initialize state variables and scroll controller
     forceUpdateValueNotifier = widget._forceUpdateValueNotifier;
     _selectedValue = forceUpdateValueNotifier.value;
     scrollController = FixedExtentScrollController(
-        initialItem: forceUpdateValueNotifier.value);
+        initialItem: _selectedScrollControllerValue());
 
     forceUpdateValueNotifier.addListener(() {
       _selectedValue = forceUpdateValueNotifier.value;
-      scrollController.animateToItem(_selectedValue,
+      scrollController.animateToItem(_selectedScrollControllerValue(),
           duration: const Duration(milliseconds: 800), curve: Curves.easeIn);
     });
 
@@ -83,11 +88,13 @@ class _SpinnerNumericPickerState extends State<SpinnerNumericPicker> {
         physics: const FixedExtentScrollPhysics(),
         childDelegate: ListWheelChildBuilderDelegate(
           builder: (context, index) {
-            final wrappedIndex =
-                index % widget.maxValue; // Wrap around the values
+            final wrappedIndex = (index % widget.maxValue) *
+                widget.steps; // Wrap around the values
             return Center(
               child: Text(
-                wrappedIndex.toString().padLeft(log10(widget.maxValue).ceil(), '0'),
+                wrappedIndex
+                    .toString()
+                    .padLeft(log10(widget.maxValue * widget.steps).ceil(), '0'),
                 // Display with leading zero
                 style: wrappedIndex == _selectedValue
                     ? widget.selectedTextStyle
@@ -98,10 +105,10 @@ class _SpinnerNumericPickerState extends State<SpinnerNumericPicker> {
         ),
         onSelectedItemChanged: (index) {
           setState(() {
-            _selectedValue = index % widget.maxValue;
+            _selectedValue = (index % widget.maxValue) * widget.steps;
           });
           // Notify the parent about the value change
-          widget.onSelectedItemChanged(index % widget.maxValue);
+          widget.onSelectedItemChanged(_selectedValue);
         },
       ),
     );
