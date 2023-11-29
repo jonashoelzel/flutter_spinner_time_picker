@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_spinner_time_picker/src/always_change_value_notifier.dart';
 
-import 'spinner_number_picker_widget.dart';
+import '../spinner_numeric_picker_widget.dart';
 
 // Define a StatefulWidget for a custom time picker widget
 class SpinnerTimePicker extends StatefulWidget {

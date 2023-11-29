@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_spinner_time_picker/src/always_change_value_notifier.dart';
 
@@ -85,7 +87,7 @@ class _SpinnerNumericPickerState extends State<SpinnerNumericPicker> {
                 index % widget.maxValue; // Wrap around the values
             return Center(
               child: Text(
-                wrappedIndex.toString().padLeft(2, '0'),
+                wrappedIndex.toString().padLeft(log10(widget.maxValue).ceil(), '0'),
                 // Display with leading zero
                 style: wrappedIndex == _selectedValue
                     ? widget.selectedTextStyle
@@ -104,4 +106,6 @@ class _SpinnerNumericPickerState extends State<SpinnerNumericPicker> {
       ),
     );
   }
+
+  double log10(num x) => log(x) / ln10;
 }

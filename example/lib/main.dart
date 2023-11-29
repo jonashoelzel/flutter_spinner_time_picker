@@ -41,12 +41,16 @@ class _MyHomePageState extends State<MyHomePage> {
   Duration selectedDuration = const Duration(hours: 1, minutes: 20, seconds: 5);
   late AlwaysChangeValueNotifier<Duration> durationChangeNotifier;
 
-  bool showSecondPage = false;
+  int selectedNumber = 0;
+  late AlwaysChangeValueNotifier<int> numberChangeNotifier;
+
+  int shownPageNumber = 0;
 
   @override
   void initState() {
     timeChangeNotifier = AlwaysChangeValueNotifier(selectedTime);
     durationChangeNotifier = AlwaysChangeValueNotifier(selectedDuration);
+    numberChangeNotifier = AlwaysChangeValueNotifier(selectedNumber);
     super.initState();
   }
 
@@ -72,14 +76,30 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void _showDurationPicker() async {
-    final pickedDuration = await showSpinnerDurationPicker(
+    final pickedNumber = await showSpinnerDurationPicker(
       initDuration: selectedDuration,
       context,
     );
 
-    if (pickedDuration != null) {
+    if (pickedNumber != null) {
       setState(() {
-        durationChangeNotifier.value = selectedDuration = pickedDuration;
+        durationChangeNotifier.value = selectedDuration = pickedNumber;
+      });
+    }
+  }
+
+  void _showNumberPicker() async {
+    final pickedNumber = await showSpinnerNumberPicker(
+      initValue: selectedNumber,
+      elementsSpace: 75,
+      unit: '\$',
+      maxValue: 1000,
+      context,
+    );
+
+    if (pickedNumber != null) {
+      setState(() {
+        numberChangeNotifier.value = selectedNumber = pickedNumber;
       });
     }
   }
@@ -165,6 +185,48 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
+  Widget _pageThree() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          const Text(
+            'Selected a Number:',
+            style: TextStyle(fontSize: 18),
+          ),
+          const SizedBox(height: 10),
+          Text(
+            '$selectedNumber \$',
+            style: const TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 20),
+          FilledButton(
+            onPressed: _showNumberPicker,
+            child: const Text('Pick a Number'),
+          ),
+          const SizedBox(height: 40),
+          SpinnerNumberPicker(
+            forceUpdateValueNotifier: numberChangeNotifier,
+            spinnerHeight: 150,
+            spinnerWidth: 80,
+            elementsSpace: 75,
+            digitHeight: 50,
+            spinnerBgColor: Colors.deepPurpleAccent.withOpacity(0.4),
+            onChangedSelectedValue: (updatedValue) => setState(() {
+              selectedNumber = updatedValue;
+            }),
+            selectedTextStyle:
+                const TextStyle(fontSize: 30, color: Colors.deepPurple),
+            nonSelectedTextStyle:
+                const TextStyle(fontSize: 30, color: Colors.deepPurpleAccent),
+            maxValue: 1000,
+            unit: '\$',
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -176,35 +238,56 @@ class _MyHomePageState extends State<MyHomePage> {
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             MaterialButton(
-              onPressed: () => setState(() => showSecondPage = false),
+              onPressed: () => setState(() => shownPageNumber = 0),
               child: Column(
                 children: [
                   Icon(
                     Icons.access_time,
-                    color:
-                        showSecondPage ? Colors.grey : Colors.deepPurpleAccent,
+                    color: shownPageNumber != 0
+                        ? Colors.grey
+                        : Colors.deepPurpleAccent,
                   ),
                   const Text('Time'),
                 ],
               ),
             ),
             MaterialButton(
-              onPressed: () => setState(() => showSecondPage = true),
+              onPressed: () => setState(() => shownPageNumber = 1),
               child: Column(
                 children: [
                   Icon(
                     Icons.timelapse,
-                    color:
-                        showSecondPage ? Colors.deepPurpleAccent : Colors.grey,
+                    color: shownPageNumber != 1
+                        ? Colors.grey
+                        : Colors.deepPurpleAccent,
                   ),
                   const Text('Duration'),
+                ],
+              ),
+            ),
+            MaterialButton(
+              onPressed: () => setState(() => shownPageNumber = 2),
+              child: Column(
+                children: [
+                  Icon(
+                    Icons.numbers,
+                    color: shownPageNumber != 2
+                        ? Colors.grey
+                        : Colors.deepPurpleAccent,
+                  ),
+                  const Text('Number'),
                 ],
               ),
             ),
           ],
         ),
       ),
-      body: showSecondPage ? _pageTwo() : _pageOne(),
+      body: switch (shownPageNumber) {
+        0 => _pageOne(),
+        1 => _pageTwo(),
+        2 => _pageThree(),
+        _ => Container(),
+      },
     );
   }
 }
