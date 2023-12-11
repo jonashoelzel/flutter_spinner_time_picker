@@ -186,8 +186,9 @@ class _SpinnerDurationPickerState extends State<SpinnerDurationPicker> {
           SizedBox(width: 0.15 * widget.elementsSpace),
           Text(
             separator,
-            style: TextStyle(
-                fontSize: 23, color: Theme.of(context).colorScheme.primary),
+            style: widget.selectedTextStyle.copyWith(
+              fontSize: (widget.selectedTextStyle.fontSize ?? 28) * 0.8,
+            ),
           ),
         ],
       ),
@@ -197,7 +198,7 @@ class _SpinnerDurationPickerState extends State<SpinnerDurationPicker> {
   Widget _leftPadding() {
     return Container(
       height: 50,
-      width:  widget.elementsSpace,
+      width: widget.elementsSpace,
       color: Colors.transparent,
     );
   }
