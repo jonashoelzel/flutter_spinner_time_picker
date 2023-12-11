@@ -101,6 +101,7 @@ class _SpinnerDurationPickerState extends State<SpinnerDurationPicker> {
       mainAxisAlignment: MainAxisAlignment.center,
       textDirection: TextDirection.ltr,
       children: [
+        widget.hideHours ? const SizedBox() : _leftPadding(),
         widget.hideHours ? const SizedBox() : _hourPicker(),
         widget.hideHours ? const SizedBox() : _durationSeparator(context, 'h'),
         widget.hideMinutes ? const SizedBox() : _minutePicker(),
@@ -190,6 +191,14 @@ class _SpinnerDurationPickerState extends State<SpinnerDurationPicker> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _leftPadding() {
+    return Container(
+      height: 50,
+      width:  widget.elementsSpace,
+      color: Colors.transparent,
     );
   }
 
