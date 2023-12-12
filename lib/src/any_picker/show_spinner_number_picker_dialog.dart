@@ -31,6 +31,7 @@ Future<int?> showSpinnerNumberPicker(BuildContext context, {
   String? cancelButtonLabel,
   String? okButtonLabel,
   String? unit,
+  bool padNumbers = false,
 }) async {
   // Get the color scheme and screen size from the current theme
   final colorScheme = Theme
@@ -144,6 +145,7 @@ Future<int?> showSpinnerNumberPicker(BuildContext context, {
               spinnerHeight: _spinnerHeight,
               spinnerWidth: _spinnerWidth,
               unit: unit,
+              padNumbers: padNumbers,
             ),
           ),
           actions: actionsButtons,
