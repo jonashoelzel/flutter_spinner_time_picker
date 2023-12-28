@@ -30,20 +30,24 @@ Future<TimeOfDay?> showSpinnerTimePicker(
   EdgeInsets? contentPadding,
   String? cancelButtonLabel,
   String? okButtonLabel,
+  bool showNowButton = false,
 }) async {
   // Get the color scheme and screen size from the current theme
   final colorScheme = Theme.of(context).colorScheme;
   final size = MediaQuery.of(context).size;
-  final Brightness currentBrightness = MediaQuery.of(context).platformBrightness;
+  final Brightness currentBrightness =
+      MediaQuery.of(context).platformBrightness;
 
   // Check the current brightness mode
   final bool isDarkMode = currentBrightness == Brightness.dark;
 
   // Set default values for various optional parameters
-  final _foregroundColor = foregroundColor ?? colorScheme.onBackground.withAlpha(200);
+  final _foregroundColor =
+      foregroundColor ?? colorScheme.onBackground.withAlpha(200);
   final _backgroundColor = backgroundColor ?? colorScheme.background;
   final _title = title ?? "Select a Time";
-  final _titleStyle = titleStyle ?? TextStyle(fontSize: 18, color: _foregroundColor);
+  final _titleStyle =
+      titleStyle ?? TextStyle(fontSize: 18, color: _foregroundColor);
   final _is24HourFormat = is24HourFormat ?? true;
   final _height = height ?? 0.25 * size.height;
   final _width = width ?? 0.8 * size.width;
@@ -53,7 +57,8 @@ Future<TimeOfDay?> showSpinnerTimePicker(
   final _digitHeight = digitHeight ?? 0.35 * _spinnerHeight;
 
   // Set spinner background color based on dark mode status
-  final _spinnerBgColor = spinnerBgColor ?? (isDarkMode ? colorScheme.primary : colorScheme.primaryContainer);
+  final _spinnerBgColor = spinnerBgColor ??
+      (isDarkMode ? colorScheme.primary : colorScheme.primaryContainer);
 
   // Set default text styles for selected and non-selected time elements
   final _selectedTextStyle = selectedTextStyle ??
@@ -65,7 +70,9 @@ Future<TimeOfDay?> showSpinnerTimePicker(
   final _nonSelectedTextStyle = nonSelectedTextStyle ??
       TextStyle(
         fontSize: 30,
-        color: isDarkMode ? colorScheme.primaryContainer.withAlpha(200) : colorScheme.primary.withAlpha(150),
+        color: isDarkMode
+            ? colorScheme.primaryContainer.withAlpha(200)
+            : colorScheme.primary.withAlpha(150),
       );
 
   // Set default text style for buttons
@@ -85,6 +92,16 @@ Future<TimeOfDay?> showSpinnerTimePicker(
 
   // Create the Cancel and Done buttons with their respective actions
   final actionsButtons = <Widget>[
+    if (showNowButton)
+      TextButton(
+        style: buttonStyle,
+        onPressed: () {
+          pressedButton = "Now";
+          selectedTime = TimeOfDay.now();
+          Navigator.of(context).pop();
+        },
+        child: Text("Now", style: _buttonTextStyle),
+      ),
     TextButton(
       style: buttonStyle,
       onPressed: () {
@@ -109,7 +126,8 @@ Future<TimeOfDay?> showSpinnerTimePicker(
     barrierDismissible: barrierDismissible,
     builder: (context) {
       return Theme(
-        data: Theme.of(context).copyWith(dialogBackgroundColor: _backgroundColor),
+        data:
+            Theme.of(context).copyWith(dialogBackgroundColor: _backgroundColor),
         child: AlertDialog(
           contentPadding: contentPadding,
           title: Center(child: Text(_title, style: _titleStyle)),

@@ -242,6 +242,6 @@ class _SpinnerDurationPickerState extends State<SpinnerDurationPicker> {
   // Update the selected duration based on user choices
   void setSelectedDuration() {
     widget.onChangedSelectedDuration(Duration(
-        hours: selectedHour, minutes: selectedMinute, seconds: selectedSecond));
+        hours: selectedHour, minutes: selectedMinute, seconds: selectedSecond, milliseconds: selectedMillisecond * 100,));
   }
 }

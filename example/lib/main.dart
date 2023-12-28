@@ -38,7 +38,8 @@ class _MyHomePageState extends State<MyHomePage> {
   TimeOfDay selectedTime = TimeOfDay.now();
   late AlwaysChangeValueNotifier<TimeOfDay> timeChangeNotifier;
 
-  Duration selectedDuration = const Duration(hours: 1, minutes: 20, seconds: 5);
+  Duration selectedDuration =
+      const Duration(hours: 1, minutes: 20, seconds: 5, milliseconds: 8);
   late AlwaysChangeValueNotifier<Duration> durationChangeNotifier;
 
   int selectedNumber = 0;
@@ -156,7 +157,7 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
           const SizedBox(height: 10),
           Text(
-            '${selectedDuration.inHours}:${selectedDuration.inMinutes.remainder(60).toString().padLeft(2, '0')}:${(selectedDuration.inSeconds.remainder(60).toString().padLeft(2, '0'))}',
+            '${selectedDuration.inHours}:${selectedDuration.inMinutes.remainder(60).toString().padLeft(2, '0')}:${(selectedDuration.inSeconds.remainder(60).toString().padLeft(2, '0'))}.${(selectedDuration.inMilliseconds.remainder(1000) ~/ 100)}',
             style: const TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 20),
