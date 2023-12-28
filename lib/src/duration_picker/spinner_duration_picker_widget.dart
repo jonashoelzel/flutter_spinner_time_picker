@@ -100,8 +100,7 @@ class _SpinnerDurationPickerState extends State<SpinnerDurationPicker> {
     selectedSecondNotifier.value =
         selectedSecond = durationChangeNotifier.value.inSeconds.remainder(60);
     selectedMillisecondNotifier.value =
-        selectedMillisecond = durationChangeNotifier.value.inMilliseconds.remainder(10);
-  }
+        selectedMillisecondNotifier.value = selectedMillisecond = durationChangeNotifier.value.inMilliseconds.remainder(1000) ~/ 100;  }
 
   @override
   Widget build(BuildContext context) {
