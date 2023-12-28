@@ -32,6 +32,7 @@ Future<Duration?> showSpinnerDurationPicker(
   bool hideSeconds = false,
   bool hideMinutes = false,
   bool hideHours = false,
+  bool hideMilliseconds = true,
 }) async {
   // Get the color scheme and screen size from the current theme
   final colorScheme = Theme.of(context).colorScheme;
@@ -139,6 +140,7 @@ Future<Duration?> showSpinnerDurationPicker(
               hideSeconds: hideSeconds,
               hideMinutes: hideMinutes,
               hideHours: hideHours,
+              hideMilliseconds: hideMilliseconds,
             ),
           ),
           actions: actionsButtons,

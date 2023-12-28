@@ -22,7 +22,7 @@ class SpinnerDurationPicker extends StatefulWidget {
   final bool hideSeconds;
   final bool hideMinutes;
   final bool hideHours;
-  final bool hideMiliseconds;
+  final bool hideMilliseconds;
 
   const SpinnerDurationPicker({
     this.initDuration,
@@ -38,7 +38,7 @@ class SpinnerDurationPicker extends StatefulWidget {
     this.hideSeconds = false,
     this.hideMinutes = false,
     this.hideHours = false,
-    this.hideMiliseconds = false,
+    this.hideMilliseconds = true,
     super.key,
   }) : assert(
             (initDuration != null || forceUpdateDurationNotifier != null) &&
@@ -119,9 +119,9 @@ class _SpinnerDurationPickerState extends State<SpinnerDurationPicker> {
         widget.hideSeconds ? const SizedBox() : _secondPicker(),
         widget.hideSeconds
             ? const SizedBox()
-            : _durationSeparator(context, widget.hideMiliseconds? 's': '.'),
-        widget.hideMiliseconds ? const SizedBox() : _millisecondsPicker(),
-        widget.hideMiliseconds
+            : _durationSeparator(context, widget.hideMilliseconds? 's': '.'),
+        widget.hideMilliseconds ? const SizedBox() : _millisecondsPicker(),
+        widget.hideMilliseconds
             ? const SizedBox()
             : _durationSeparator(context, 's'),
       ],
@@ -211,7 +211,7 @@ class _SpinnerDurationPickerState extends State<SpinnerDurationPicker> {
   SizedBox _durationSeparator(BuildContext context, String separator) {
     double separatorWidth = widget.elementsSpace;
 
-    if (separator == '.' && !widget.hideMiliseconds) {
+    if (separator == '.' && !widget.hideMilliseconds) {
       separatorWidth = widget.elementsSpace * 0.4;
     }
     return SizedBox(

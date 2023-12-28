@@ -79,6 +79,7 @@ class _MyHomePageState extends State<MyHomePage> {
   void _showDurationPicker() async {
     final pickedNumber = await showSpinnerDurationPicker(
       initDuration: selectedDuration,
+      hideMilliseconds: true,
       context,
     );
 
@@ -180,6 +181,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 const TextStyle(fontSize: 30, color: Colors.deepPurple),
             nonSelectedTextStyle:
                 const TextStyle(fontSize: 30, color: Colors.deepPurpleAccent),
+            hideMilliseconds: false,
           ),
         ],
       ),
