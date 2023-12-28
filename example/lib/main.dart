@@ -168,7 +168,7 @@ class _MyHomePageState extends State<MyHomePage> {
           SpinnerDurationPicker(
             forceUpdateDurationNotifier: durationChangeNotifier,
             spinnerHeight: 150,
-            spinnerWidth: 80,
+            spinnerWidth: 50,
             elementsSpace: 40,
             digitHeight: 50,
             spinnerBgColor: Colors.deepPurpleAccent.withOpacity(0.4),
