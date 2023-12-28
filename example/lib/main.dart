@@ -79,7 +79,10 @@ class _MyHomePageState extends State<MyHomePage> {
   void _showDurationPicker() async {
     final pickedNumber = await showSpinnerDurationPicker(
       initDuration: selectedDuration,
-      hideMilliseconds: true,
+      hideMilliseconds: false,
+      hideHours: true,
+      elementsSpace: 32,
+      contentPadding: const EdgeInsets.all(10),
       context,
     );
 

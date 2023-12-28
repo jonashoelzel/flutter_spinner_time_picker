@@ -122,7 +122,8 @@ Future<Duration?> showSpinnerDurationPicker(
         child: AlertDialog(
           contentPadding: contentPadding,
           title: Center(child: Text(_title, style: _titleStyle)),
-          content: SizedBox(
+          content: Container(
+            padding: EdgeInsets.only(left: elementsSpace?.toDouble() ??25),
             height: _height,
             width: _width,
             child: SpinnerDurationPicker(
