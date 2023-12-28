@@ -19,6 +19,7 @@ class SpinnerNumericPicker extends StatefulWidget {
   final Color spinnerBgColor; // Background color of the widget
   final void Function(int value)
       onSelectedItemChanged; // Callback for value selection
+  final bool padNumbers;
 
   SpinnerNumericPicker({
     AlwaysChangeValueNotifier<int>? forceUpdateValueNotifier,
@@ -30,6 +31,7 @@ class SpinnerNumericPicker extends StatefulWidget {
     required this.nonSelectedTextStyle,
     required this.onSelectedItemChanged,
     required this.spinnerBgColor,
+    this.padNumbers = true,
     this.steps = 1,
     super.key,
   })  : maxValue = (maxValue / steps).ceil(),
@@ -92,10 +94,12 @@ class _SpinnerNumericPickerState extends State<SpinnerNumericPicker> {
                 widget.steps; // Wrap around the values
             return Center(
               child: Text(
-                wrappedIndex
-                    .toString()
-                    .padLeft(log10(widget.maxValue * widget.steps).ceil(), '0'),
-                // Display with leading zero
+                widget.padNumbers
+                    ?
+                    // Display with leading zero
+                    wrappedIndex.toString().padLeft(
+                        log10(widget.maxValue * widget.steps).ceil(), '0')
+                    : wrappedIndex.toString(),
                 style: wrappedIndex == _selectedValue
                     ? widget.selectedTextStyle
                     : widget.nonSelectedTextStyle,
