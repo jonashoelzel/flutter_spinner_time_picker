@@ -82,7 +82,7 @@ Future<int?> showSpinnerNumberPicker(BuildContext context, {
       );
 
   // Set default text style for buttons
-  final _buttonTextStyle = TextStyle(
+  final _buttonTextStyle = buttonTextStyle ?? TextStyle(
     fontSize: 15,
     fontWeight: FontWeight.w600,
     color: colorScheme.primary,
