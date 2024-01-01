@@ -18,6 +18,7 @@ class SpinnerNumberPicker extends StatelessWidget {
       nonSelectedTextStyle; // Text style for non-selected number elements
   final void Function(int selected) onChangedSelectedValue;
   final String? unit;
+  final TextStyle? unitTextStyle;
   final bool padNumbers;
 
   SpinnerNumberPicker({
@@ -35,6 +36,7 @@ class SpinnerNumberPicker extends StatelessWidget {
     required this.onChangedSelectedValue,
     this.padNumbers = false,
     this.unit,
+    this. unitTextStyle,
     super.key,
   })  : assert(
             (initValue != null || forceUpdateValueNotifier != null) &&
@@ -72,7 +74,7 @@ class SpinnerNumberPicker extends StatelessWidget {
                     SizedBox(width: 0.15 * elementsSpace),
                     Text(
                       unit!,
-                      style: TextStyle(
+                      style: unitTextStyle ?? TextStyle(
                           fontSize: 23,
                           color: Theme.of(context).colorScheme.primary),
                     ),
