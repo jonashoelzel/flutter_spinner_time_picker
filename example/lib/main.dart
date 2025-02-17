@@ -99,6 +99,7 @@ class _MyHomePageState extends State<MyHomePage> {
       elementsSpace: 75,
       unit: '\$',
       maxValue: 1000,
+      steps: 10,
       context,
     );
 
@@ -186,6 +187,24 @@ class _MyHomePageState extends State<MyHomePage> {
                 const TextStyle(fontSize: 30, color: Colors.deepPurpleAccent),
             hideMilliseconds: false,
           ),
+          TextButton(
+            onPressed: () {
+              setState(() {
+                durationChangeNotifier.value =
+                    const Duration(hours: 3, minutes: 20, seconds: 1);
+              });
+            },
+            child: const Text('Set 3'),
+          ),
+          TextButton(
+            onPressed: () {
+              setState(() {
+                durationChangeNotifier.value =
+                    const Duration(hours: 1, minutes: 5, seconds: 2);
+              });
+            },
+            child: const Text('Set 1'),
+          ),
         ],
       ),
     );
@@ -225,7 +244,8 @@ class _MyHomePageState extends State<MyHomePage> {
                 const TextStyle(fontSize: 30, color: Colors.deepPurple),
             nonSelectedTextStyle:
                 const TextStyle(fontSize: 30, color: Colors.deepPurpleAccent),
-            maxValue: 1000,
+            maxValue: 10000,
+            steps: 10,
             unit: '\$',
           ),
         ],
