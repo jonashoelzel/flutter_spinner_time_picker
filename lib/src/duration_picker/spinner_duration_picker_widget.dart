@@ -23,6 +23,7 @@ class SpinnerDurationPicker extends StatefulWidget {
   final bool hideMinutes;
   final bool hideHours;
   final bool hideMilliseconds;
+  final bool enableHapticFeedback;
 
   const SpinnerDurationPicker({
     this.initDuration,
@@ -39,6 +40,7 @@ class SpinnerDurationPicker extends StatefulWidget {
     this.hideMinutes = false,
     this.hideHours = false,
     this.hideMilliseconds = true,
+    this.enableHapticFeedback = true,
     super.key,
   }) : assert(
             (initDuration != null || forceUpdateDurationNotifier != null) &&
@@ -137,6 +139,7 @@ class _SpinnerDurationPickerState extends State<SpinnerDurationPicker> {
       nonSelectedTextStyle: widget.nonSelectedTextStyle.copyWith(fontSize: widget.nonSelectedTextStyle.fontSize! * 0.85),
       selectedTextStyle: widget.selectedTextStyle.copyWith(fontSize: widget.selectedTextStyle.fontSize! * 0.85),
       spinnerBgColor: widget.spinnerBgColor,
+      enableHapticFeedback: widget.enableHapticFeedback,
       onSelectedItemChanged: (value) {
         setState(() {
           selectedMillisecond = value;
@@ -157,6 +160,7 @@ class _SpinnerDurationPickerState extends State<SpinnerDurationPicker> {
       nonSelectedTextStyle: widget.nonSelectedTextStyle,
       selectedTextStyle: widget.selectedTextStyle,
       spinnerBgColor: widget.spinnerBgColor,
+      enableHapticFeedback: widget.enableHapticFeedback,
       onSelectedItemChanged: (value) {
         setState(() {
           selectedSecond = value;
@@ -177,6 +181,7 @@ class _SpinnerDurationPickerState extends State<SpinnerDurationPicker> {
       nonSelectedTextStyle: widget.nonSelectedTextStyle,
       selectedTextStyle: widget.selectedTextStyle,
       spinnerBgColor: widget.spinnerBgColor,
+      enableHapticFeedback: widget.enableHapticFeedback,
       onSelectedItemChanged: (value) {
         setState(() {
           selectedMinute = value;
@@ -197,6 +202,7 @@ class _SpinnerDurationPickerState extends State<SpinnerDurationPicker> {
       nonSelectedTextStyle: widget.nonSelectedTextStyle,
       selectedTextStyle: widget.selectedTextStyle,
       spinnerBgColor: widget.spinnerBgColor,
+      enableHapticFeedback: widget.enableHapticFeedback,
       onSelectedItemChanged: (value) async {
         setState(() {
           selectedHour = value;

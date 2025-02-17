@@ -33,6 +33,7 @@ Future<int?> showSpinnerNumberPicker(BuildContext context, {
   String? unit,
   TextStyle? unitTextStyle,
   bool padNumbers = false,
+  bool enableHapticFeedback = true,
 }) async {
   // Get the color scheme and screen size from the current theme
   final colorScheme = Theme
@@ -148,6 +149,7 @@ Future<int?> showSpinnerNumberPicker(BuildContext context, {
               unit: unit,
               unitTextStyle: unitTextStyle,
               padNumbers: padNumbers,
+              enableHapticFeedback: enableHapticFeedback,
             ),
           ),
           actions: actionsButtons,

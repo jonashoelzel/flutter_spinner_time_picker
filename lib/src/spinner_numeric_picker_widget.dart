@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_spinner_time_picker/src/always_change_value_notifier.dart';
+import 'package:gaimon/gaimon.dart';
 
 // Define a StatefulWidget for a time element picker widget
 class SpinnerNumericPicker extends StatefulWidget {
@@ -20,6 +21,7 @@ class SpinnerNumericPicker extends StatefulWidget {
   final void Function(int value)
       onSelectedItemChanged; // Callback for value selection
   final bool padNumbers;
+  final bool enableHapticFeedback;
 
   SpinnerNumericPicker({
     AlwaysChangeValueNotifier<int>? forceUpdateValueNotifier,
@@ -33,6 +35,7 @@ class SpinnerNumericPicker extends StatefulWidget {
     required this.spinnerBgColor,
     this.padNumbers = true,
     this.steps = 1,
+    this.enableHapticFeedback = true,
     super.key,
   })  : maxValue = (maxValue / steps).ceil(),
         _forceUpdateValueNotifier =
@@ -108,11 +111,19 @@ class _SpinnerNumericPickerState extends State<SpinnerNumericPicker> {
           },
         ),
         onSelectedItemChanged: (index) {
-          setState(() {
-            _selectedValue = (index % widget.maxValue) * widget.steps;
-          });
+          setState(
+            () => _selectedValue = (index % widget.maxValue) * widget.steps,
+          );
           // Notify the parent about the value change
           widget.onSelectedItemChanged(_selectedValue);
+
+          if (widget.enableHapticFeedback) {
+            Gaimon.canSupportsHaptic.then((value) {
+              if (value) {
+                Gaimon.light();
+              }
+            });
+          }
         },
       ),
     );

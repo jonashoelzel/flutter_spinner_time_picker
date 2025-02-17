@@ -33,6 +33,7 @@ Future<Duration?> showSpinnerDurationPicker(
   bool hideMinutes = false,
   bool hideHours = false,
   bool hideMilliseconds = true,
+  bool enableHapticFeedback = true,
 }) async {
   // Get the color scheme and screen size from the current theme
   final colorScheme = Theme.of(context).colorScheme;
@@ -77,11 +78,12 @@ Future<Duration?> showSpinnerDurationPicker(
       );
 
   // Set default text style for buttons
-  final _buttonTextStyle = buttonTextStyle ?? TextStyle(
-    fontSize: 15,
-    fontWeight: FontWeight.w600,
-    color: colorScheme.primary,
-  );
+  final _buttonTextStyle = buttonTextStyle ??
+      TextStyle(
+        fontSize: 15,
+        fontWeight: FontWeight.w600,
+        color: colorScheme.primary,
+      );
 
   // Set default labels for cancel and done buttons
   final _cancelButtonLabel = cancelButtonLabel ?? 'Cancel';
@@ -141,6 +143,7 @@ Future<Duration?> showSpinnerDurationPicker(
               hideMinutes: hideMinutes,
               hideHours: hideHours,
               hideMilliseconds: hideMilliseconds,
+              enableHapticFeedback: enableHapticFeedback,
             ),
           ),
           actions: actionsButtons,

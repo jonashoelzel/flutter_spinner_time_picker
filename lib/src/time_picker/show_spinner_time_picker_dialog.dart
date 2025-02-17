@@ -30,6 +30,7 @@ Future<TimeOfDay?> showSpinnerTimePicker(
   EdgeInsets? contentPadding,
   String? cancelButtonLabel,
   String? okButtonLabel,
+  bool enableHapticFeedback = true,
   bool showNowButton = false,
 }) async {
   // Get the color scheme and screen size from the current theme
@@ -76,11 +77,12 @@ Future<TimeOfDay?> showSpinnerTimePicker(
       );
 
   // Set default text style for buttons
-  final _buttonTextStyle = buttonTextStyle ?? TextStyle(
-    fontSize: 15,
-    fontWeight: FontWeight.w600,
-    color: colorScheme.primary,
-  );
+  final _buttonTextStyle = buttonTextStyle ??
+      TextStyle(
+        fontSize: 15,
+        fontWeight: FontWeight.w600,
+        color: colorScheme.primary,
+      );
 
   // Set default labels for cancel and done buttons
   final _cancelButtonLabel = cancelButtonLabel ?? 'Cancel';
@@ -147,6 +149,7 @@ Future<TimeOfDay?> showSpinnerTimePicker(
               spinnerBgColor: _spinnerBgColor,
               spinnerHeight: _spinnerHeight,
               spinnerWidth: _spinnerWidth,
+              enableHapticFeedback: enableHapticFeedback,
             ),
           ),
           actions: actionsButtons,

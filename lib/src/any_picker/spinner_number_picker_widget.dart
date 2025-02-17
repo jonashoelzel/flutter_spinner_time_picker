@@ -20,6 +20,7 @@ class SpinnerNumberPicker extends StatelessWidget {
   final String? unit;
   final TextStyle? unitTextStyle;
   final bool padNumbers;
+  final bool enableHapticFeedback;
 
   SpinnerNumberPicker({
     AlwaysChangeValueNotifier<int>? forceUpdateValueNotifier,
@@ -35,6 +36,7 @@ class SpinnerNumberPicker extends StatelessWidget {
     required this.nonSelectedTextStyle,
     required this.onChangedSelectedValue,
     this.padNumbers = false,
+    this.enableHapticFeedback = true,
     this.unit,
     this. unitTextStyle,
     super.key,
@@ -63,6 +65,7 @@ class SpinnerNumberPicker extends StatelessWidget {
           spinnerBgColor: spinnerBgColor,
           onSelectedItemChanged: onChangedSelectedValue,
           padNumbers: padNumbers,
+          enableHapticFeedback: enableHapticFeedback,
         ),
         unit == null
             ? const SizedBox()
