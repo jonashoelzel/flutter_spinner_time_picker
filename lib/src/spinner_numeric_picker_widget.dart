@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
@@ -118,11 +119,13 @@ class _SpinnerNumericPickerState extends State<SpinnerNumericPicker> {
           widget.onSelectedItemChanged(_selectedValue);
 
           if (widget.enableHapticFeedback) {
-            Gaimon.canSupportsHaptic.then((value) {
-              if (value) {
-                Gaimon.light();
-              }
-            });
+            if (Platform.isIOS || Platform.isAndroid) {
+              Gaimon.canSupportsHaptic.then((value) {
+                if (value) {
+                  Gaimon.light();
+                }
+              });
+            }
           }
         },
       ),
