@@ -32,6 +32,7 @@ Future<TimeOfDay?> showSpinnerTimePicker(
   String? okButtonLabel,
   bool enableHapticFeedback = true,
   bool showNowButton = false,
+  bool showInfinityBetweenSmallestAndLargestValue = false,
 }) async {
   // Get the color scheme and screen size from the current theme
   final colorScheme = Theme.of(context).colorScheme;
@@ -150,6 +151,8 @@ Future<TimeOfDay?> showSpinnerTimePicker(
               spinnerHeight: _spinnerHeight,
               spinnerWidth: _spinnerWidth,
               enableHapticFeedback: enableHapticFeedback,
+              showInfinityBetweenSmallestAndLargestValue:
+                  showInfinityBetweenSmallestAndLargestValue,
             ),
           ),
           actions: actionsButtons,

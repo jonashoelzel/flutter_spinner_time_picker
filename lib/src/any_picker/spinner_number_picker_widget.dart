@@ -21,6 +21,7 @@ class SpinnerNumberPicker extends StatelessWidget {
   final TextStyle? unitTextStyle;
   final bool padNumbers;
   final bool enableHapticFeedback;
+  final bool showInfinityBetweenSmallestAndLargestValue;
 
   SpinnerNumberPicker({
     AlwaysChangeValueNotifier<int>? forceUpdateValueNotifier,
@@ -37,13 +38,15 @@ class SpinnerNumberPicker extends StatelessWidget {
     required this.onChangedSelectedValue,
     this.padNumbers = false,
     this.enableHapticFeedback = true,
+    this.showInfinityBetweenSmallestAndLargestValue = false,
     this.unit,
-    this. unitTextStyle,
+    this.unitTextStyle,
     super.key,
   })  : assert(
-            (initValue != null || forceUpdateValueNotifier != null) &&
-                (initValue == null || forceUpdateValueNotifier == null),
-            'Either initValue xor forceValueChangeNotifier must be provided'),
+          (initValue != null || forceUpdateValueNotifier != null) &&
+              (initValue == null || forceUpdateValueNotifier == null),
+          'Either initValue xor forceValueChangeNotifier must be provided',
+        ),
         _forceUpdateValueNotifier = forceUpdateValueNotifier ??
             AlwaysChangeValueNotifier<int>(initValue!);
 
@@ -66,6 +69,8 @@ class SpinnerNumberPicker extends StatelessWidget {
           onSelectedItemChanged: onChangedSelectedValue,
           padNumbers: padNumbers,
           enableHapticFeedback: enableHapticFeedback,
+          showInfinityBetweenSmallestAndLargestValue:
+              showInfinityBetweenSmallestAndLargestValue,
         ),
         unit == null
             ? const SizedBox()
@@ -77,9 +82,10 @@ class SpinnerNumberPicker extends StatelessWidget {
                     SizedBox(width: 0.15 * elementsSpace),
                     Text(
                       unit!,
-                      style: unitTextStyle ?? TextStyle(
-                          fontSize: 23,
-                          color: Theme.of(context).colorScheme.primary),
+                      style: unitTextStyle ??
+                          TextStyle(
+                              fontSize: 23,
+                              color: Theme.of(context).colorScheme.primary),
                     ),
                   ],
                 ),

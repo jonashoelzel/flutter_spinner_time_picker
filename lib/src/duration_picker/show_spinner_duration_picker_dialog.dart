@@ -34,6 +34,7 @@ Future<Duration?> showSpinnerDurationPicker(
   bool hideHours = false,
   bool hideMilliseconds = true,
   bool enableHapticFeedback = true,
+  bool showInfinityBetweenSmallestAndLargestValue = false,
 }) async {
   // Get the color scheme and screen size from the current theme
   final colorScheme = Theme.of(context).colorScheme;
@@ -144,6 +145,8 @@ Future<Duration?> showSpinnerDurationPicker(
               hideHours: hideHours,
               hideMilliseconds: hideMilliseconds,
               enableHapticFeedback: enableHapticFeedback,
+              showInfinityBetweenSmallestAndLargestValue:
+                  showInfinityBetweenSmallestAndLargestValue,
             ),
           ),
           actions: actionsButtons,

@@ -24,6 +24,7 @@ class SpinnerDurationPicker extends StatefulWidget {
   final bool hideHours;
   final bool hideMilliseconds;
   final bool enableHapticFeedback;
+  final bool showInfinityBetweenSmallestAndLargestValue;
 
   const SpinnerDurationPicker({
     this.initDuration,
@@ -41,6 +42,7 @@ class SpinnerDurationPicker extends StatefulWidget {
     this.hideHours = false,
     this.hideMilliseconds = true,
     this.enableHapticFeedback = true,
+    this.showInfinityBetweenSmallestAndLargestValue = false,
     super.key,
   }) : assert(
             (initDuration != null || forceUpdateDurationNotifier != null) &&
@@ -101,8 +103,12 @@ class _SpinnerDurationPickerState extends State<SpinnerDurationPicker> {
         selectedMinute = durationChangeNotifier.value.inMinutes.remainder(60);
     selectedSecondNotifier.value =
         selectedSecond = durationChangeNotifier.value.inSeconds.remainder(60);
+
+    final milliseconds =
+        durationChangeNotifier.value.inMilliseconds.remainder(1000);
     selectedMillisecondNotifier.value =
-        selectedMillisecondNotifier.value = selectedMillisecond = durationChangeNotifier.value.inMilliseconds.remainder(1000) ~/ 100;  }
+        selectedMillisecond = milliseconds == -1 ? -1 : milliseconds ~/ 100;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -120,7 +126,7 @@ class _SpinnerDurationPickerState extends State<SpinnerDurationPicker> {
         widget.hideSeconds ? const SizedBox() : _secondPicker(),
         widget.hideSeconds
             ? const SizedBox()
-            : _durationSeparator(context, widget.hideMilliseconds? 's': '.'),
+            : _durationSeparator(context, widget.hideMilliseconds ? 's' : '.'),
         widget.hideMilliseconds ? const SizedBox() : _millisecondsPicker(),
         widget.hideMilliseconds
             ? const SizedBox()
@@ -133,13 +139,18 @@ class _SpinnerDurationPickerState extends State<SpinnerDurationPicker> {
     return SpinnerNumericPicker(
       forceUpdateValueNotifier: selectedMillisecondNotifier,
       maxValue: 10,
-      height: widget.spinnerHeight-25,
-      width: widget.spinnerWidth-15,
-      digitHeight: widget.digitHeight-10,
-      nonSelectedTextStyle: widget.nonSelectedTextStyle.copyWith(fontSize: widget.nonSelectedTextStyle.fontSize! * 0.85),
-      selectedTextStyle: widget.selectedTextStyle.copyWith(fontSize: widget.selectedTextStyle.fontSize! * 0.85),
+      height: widget.spinnerHeight - 25,
+      width: widget.spinnerWidth - 15,
+      digitHeight: widget.digitHeight - 10,
+      nonSelectedTextStyle: widget.nonSelectedTextStyle
+          .copyWith(fontSize: widget.nonSelectedTextStyle.fontSize! * 0.85),
+      selectedTextStyle: widget.selectedTextStyle
+          .copyWith(fontSize: widget.selectedTextStyle.fontSize! * 0.85),
       spinnerBgColor: widget.spinnerBgColor,
       enableHapticFeedback: widget.enableHapticFeedback,
+      showInfinityBetweenSmallestAndLargestValue:
+          widget.showInfinityBetweenSmallestAndLargestValue,
+      padNumbers: false,
       onSelectedItemChanged: (value) {
         setState(() {
           selectedMillisecond = value;
@@ -161,6 +172,8 @@ class _SpinnerDurationPickerState extends State<SpinnerDurationPicker> {
       selectedTextStyle: widget.selectedTextStyle,
       spinnerBgColor: widget.spinnerBgColor,
       enableHapticFeedback: widget.enableHapticFeedback,
+      showInfinityBetweenSmallestAndLargestValue:
+          widget.showInfinityBetweenSmallestAndLargestValue,
       onSelectedItemChanged: (value) {
         setState(() {
           selectedSecond = value;
@@ -182,6 +195,8 @@ class _SpinnerDurationPickerState extends State<SpinnerDurationPicker> {
       selectedTextStyle: widget.selectedTextStyle,
       spinnerBgColor: widget.spinnerBgColor,
       enableHapticFeedback: widget.enableHapticFeedback,
+      showInfinityBetweenSmallestAndLargestValue:
+          widget.showInfinityBetweenSmallestAndLargestValue,
       onSelectedItemChanged: (value) {
         setState(() {
           selectedMinute = value;
@@ -203,6 +218,8 @@ class _SpinnerDurationPickerState extends State<SpinnerDurationPicker> {
       selectedTextStyle: widget.selectedTextStyle,
       spinnerBgColor: widget.spinnerBgColor,
       enableHapticFeedback: widget.enableHapticFeedback,
+      showInfinityBetweenSmallestAndLargestValue:
+          widget.showInfinityBetweenSmallestAndLargestValue,
       onSelectedItemChanged: (value) async {
         setState(() {
           selectedHour = value;
@@ -247,6 +264,10 @@ class _SpinnerDurationPickerState extends State<SpinnerDurationPicker> {
   // Update the selected duration based on user choices
   void setSelectedDuration() {
     widget.onChangedSelectedDuration(Duration(
-        hours: selectedHour, minutes: selectedMinute, seconds: selectedSecond, milliseconds: selectedMillisecond * 100,));
+      hours: selectedHour,
+      minutes: selectedMinute,
+      seconds: selectedSecond,
+      milliseconds: selectedMillisecond == -1 ? -1 : selectedMillisecond * 100,
+    ));
   }
 }

@@ -21,6 +21,7 @@ class SpinnerTimePicker extends StatefulWidget {
   final void Function(TimeOfDay selected)
       onChangedSelectedTime; // Callback for time selection
   final bool enableHapticFeedback;
+  final bool showInfinityBetweenSmallestAndLargestValue;
 
   const SpinnerTimePicker({
     this.initTime,
@@ -35,6 +36,7 @@ class SpinnerTimePicker extends StatefulWidget {
     required this.nonSelectedTextStyle,
     required this.onChangedSelectedTime,
     this.enableHapticFeedback = true,
+    this.showInfinityBetweenSmallestAndLargestValue = false,
     super.key,
   }) : assert(
             (initTime != null || forceUpdateTimeNotifier != null) &&
@@ -149,6 +151,8 @@ class _SpinnerTimePickerState extends State<SpinnerTimePicker> {
       selectedTextStyle: widget.selectedTextStyle,
       spinnerBgColor: widget.spinnerBgColor,
       enableHapticFeedback: widget.enableHapticFeedback,
+      showInfinityBetweenSmallestAndLargestValue:
+          widget.showInfinityBetweenSmallestAndLargestValue,
       onSelectedItemChanged: (value) {
         setState(() {
           selectedMinute = value;
@@ -184,6 +188,8 @@ class _SpinnerTimePickerState extends State<SpinnerTimePicker> {
       selectedTextStyle: widget.selectedTextStyle,
       spinnerBgColor: widget.spinnerBgColor,
       enableHapticFeedback: widget.enableHapticFeedback,
+      showInfinityBetweenSmallestAndLargestValue:
+          widget.showInfinityBetweenSmallestAndLargestValue,
       onSelectedItemChanged: (value) async {
         setState(() {
           selectedHour = value;

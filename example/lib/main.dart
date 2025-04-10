@@ -37,6 +37,10 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   TimeOfDay selectedTime = TimeOfDay.now();
   late AlwaysChangeValueNotifier<TimeOfDay> timeChangeNotifier;
+  bool showInfinityBetweenSmallestAndLargestValue = false;
+  bool showInfinityInTimePicker = false;
+  bool showInfinityInDurationPicker = false;
+  bool padNumbers = false;
 
   Duration selectedDuration =
       const Duration(hours: 1, minutes: 20, seconds: 5, milliseconds: 8);
@@ -67,6 +71,7 @@ class _MyHomePageState extends State<MyHomePage> {
       context,
       initTime: selectedTime,
       is24HourFormat: false,
+      showInfinityBetweenSmallestAndLargestValue: showInfinityInTimePicker,
     );
 
     if (pickedTime != null) {
@@ -83,6 +88,7 @@ class _MyHomePageState extends State<MyHomePage> {
       hideHours: true,
       elementsSpace: 32,
       contentPadding: const EdgeInsets.all(10),
+      showInfinityBetweenSmallestAndLargestValue: showInfinityInDurationPicker,
       context,
     );
 
@@ -100,6 +106,7 @@ class _MyHomePageState extends State<MyHomePage> {
       unit: '\$',
       maxValue: 1000,
       steps: 10,
+      padNumbers: padNumbers,
       context,
     );
 
@@ -129,6 +136,21 @@ class _MyHomePageState extends State<MyHomePage> {
             onPressed: _showTimePicker,
             child: const Text('Pick a Time'),
           ),
+          const SizedBox(height: 20),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Text('Show infinity value'),
+              Checkbox(
+                value: showInfinityInTimePicker,
+                onChanged: (bool? value) {
+                  setState(() {
+                    showInfinityInTimePicker = value ?? false;
+                  });
+                },
+              ),
+            ],
+          ),
           const SizedBox(height: 40),
           SpinnerTimePicker(
             elementsSpace: 40,
@@ -145,6 +167,8 @@ class _MyHomePageState extends State<MyHomePage> {
             nonSelectedTextStyle:
                 const TextStyle(fontSize: 30, color: Colors.deepPurpleAccent),
             spinnerBgColor: Colors.deepPurpleAccent.withOpacity(0.4),
+            showInfinityBetweenSmallestAndLargestValue:
+                showInfinityInTimePicker,
           ),
         ],
       ),
@@ -170,6 +194,21 @@ class _MyHomePageState extends State<MyHomePage> {
             onPressed: _showDurationPicker,
             child: const Text('Pick a Duration'),
           ),
+          const SizedBox(height: 20),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Text('Show infinity value'),
+              Checkbox(
+                value: showInfinityInDurationPicker,
+                onChanged: (bool? value) {
+                  setState(() {
+                    showInfinityInDurationPicker = value ?? false;
+                  });
+                },
+              ),
+            ],
+          ),
           const SizedBox(height: 40),
           SpinnerDurationPicker(
             forceUpdateDurationNotifier: durationChangeNotifier,
@@ -186,15 +225,17 @@ class _MyHomePageState extends State<MyHomePage> {
             nonSelectedTextStyle:
                 const TextStyle(fontSize: 30, color: Colors.deepPurpleAccent),
             hideMilliseconds: false,
+            showInfinityBetweenSmallestAndLargestValue:
+                showInfinityInDurationPicker,
           ),
           TextButton(
             onPressed: () {
               setState(() {
-                durationChangeNotifier.value =
-                    const Duration(hours: 3, minutes: 20, seconds: 1);
+                durationChangeNotifier.value = const Duration(
+                    hours: 3, minutes: 20, seconds: 1, milliseconds: 100);
               });
             },
-            child: const Text('Set 3'),
+            child: const Text('Set: 3:20:1.1'),
           ),
           TextButton(
             onPressed: () {
@@ -203,7 +244,17 @@ class _MyHomePageState extends State<MyHomePage> {
                     const Duration(hours: 1, minutes: 5, seconds: 2);
               });
             },
-            child: const Text('Set 1'),
+            child: const Text('Set: 1:5:25:2'),
+          ),
+          TextButton(
+            onPressed: () {
+              setState(() {
+                showInfinityInDurationPicker = true;
+                durationChangeNotifier.value = const Duration(
+                    hours: -1, minutes: -1, seconds: -1, milliseconds: -1);
+              });
+            },
+            child: const Text('Set: ∞'),
           ),
         ],
       ),
@@ -229,8 +280,40 @@ class _MyHomePageState extends State<MyHomePage> {
             onPressed: _showNumberPicker,
             child: const Text('Pick a Number'),
           ),
+          const SizedBox(height: 20),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Text('Show infinity value'),
+              Checkbox(
+                value: showInfinityBetweenSmallestAndLargestValue,
+                onChanged: (bool? value) {
+                  setState(() {
+                    showInfinityBetweenSmallestAndLargestValue = value ?? false;
+                  });
+                },
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Text('Pad numbers'),
+              Checkbox(
+                value: padNumbers,
+                onChanged: (bool? value) {
+                  setState(() {
+                    padNumbers = value ?? false;
+                  });
+                },
+              ),
+            ],
+          ),
           const SizedBox(height: 40),
           SpinnerNumberPicker(
+            showInfinityBetweenSmallestAndLargestValue:
+                showInfinityBetweenSmallestAndLargestValue,
             forceUpdateValueNotifier: numberChangeNotifier,
             spinnerHeight: 150,
             spinnerWidth: 80,
@@ -247,6 +330,7 @@ class _MyHomePageState extends State<MyHomePage> {
             maxValue: 10000,
             steps: 10,
             unit: '\$',
+            padNumbers: padNumbers,
           ),
         ],
       ),
@@ -308,12 +392,14 @@ class _MyHomePageState extends State<MyHomePage> {
           ],
         ),
       ),
-      body: switch (shownPageNumber) {
-        0 => _pageOne(),
-        1 => _pageTwo(),
-        2 => _pageThree(),
-        _ => Container(),
-      },
+      body: SingleChildScrollView(
+        child: switch (shownPageNumber) {
+          0 => _pageOne(),
+          1 => _pageTwo(),
+          2 => _pageThree(),
+          _ => Container(),
+        },
+      ),
     );
   }
 }

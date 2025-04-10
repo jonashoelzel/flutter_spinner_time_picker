@@ -23,6 +23,7 @@ class SpinnerNumericPicker extends StatefulWidget {
       onSelectedItemChanged; // Callback for value selection
   final bool padNumbers;
   final bool enableHapticFeedback;
+  final bool showInfinityBetweenSmallestAndLargestValue;
 
   SpinnerNumericPicker({
     AlwaysChangeValueNotifier<int>? forceUpdateValueNotifier,
@@ -37,8 +38,10 @@ class SpinnerNumericPicker extends StatefulWidget {
     this.padNumbers = true,
     this.steps = 1,
     this.enableHapticFeedback = true,
+    this.showInfinityBetweenSmallestAndLargestValue = false,
     super.key,
-  })  : maxValue = (maxValue / steps).ceil(),
+  })  : maxValue = (maxValue / steps).ceil() +
+            (showInfinityBetweenSmallestAndLargestValue ? 1 : 0),
         _forceUpdateValueNotifier =
             forceUpdateValueNotifier ?? AlwaysChangeValueNotifier<int>(0);
 
@@ -96,14 +99,28 @@ class _SpinnerNumericPickerState extends State<SpinnerNumericPicker> {
           builder: (context, index) {
             final wrappedIndex = (index % widget.maxValue) *
                 widget.steps; // Wrap around the values
+
+            final String numberText;
+            if (widget.showInfinityBetweenSmallestAndLargestValue &&
+                wrappedIndex == (widget.maxValue - 1) * widget.steps) {
+              numberText = '∞';
+            } else if (widget.padNumbers) {
+              // Display with leading zero
+              numberText = wrappedIndex.toString().padLeft(
+                  log10((widget.maxValue -
+                              (widget.showInfinityBetweenSmallestAndLargestValue
+                                  ? 1
+                                  : 0)) *
+                          widget.steps)
+                      .ceil(),
+                  '0');
+            } else {
+              numberText = wrappedIndex.toString();
+            }
+
             return Center(
               child: Text(
-                widget.padNumbers
-                    ?
-                    // Display with leading zero
-                    wrappedIndex.toString().padLeft(
-                        log10(widget.maxValue * widget.steps).ceil(), '0')
-                    : wrappedIndex.toString(),
+                numberText,
                 style: wrappedIndex == _selectedValue
                     ? widget.selectedTextStyle
                     : widget.nonSelectedTextStyle,
@@ -113,7 +130,15 @@ class _SpinnerNumericPickerState extends State<SpinnerNumericPicker> {
         ),
         onSelectedItemChanged: (index) {
           setState(
-            () => _selectedValue = (index % widget.maxValue) * widget.steps,
+            () {
+              _selectedValue = (index % widget.maxValue) * widget.steps;
+
+              if (widget.showInfinityBetweenSmallestAndLargestValue &&
+                  _selectedValue == (widget.maxValue - 1) * widget.steps) {
+                // when infinity is selected the value is -1
+                _selectedValue = -1;
+              }
+            },
           );
           // Notify the parent about the value change
           widget.onSelectedItemChanged(_selectedValue);
