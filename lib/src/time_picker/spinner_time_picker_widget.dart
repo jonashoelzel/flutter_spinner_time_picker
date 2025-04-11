@@ -4,39 +4,57 @@ import 'package:flutter_spinner_time_picker/src/always_change_value_notifier.dar
 
 import '../raw_number_spinner.dart';
 
+class SpinnerTimePickerOptions {
+  final RawNumberSpinnerOptions spinnerOptions;
+  final double elementsSpace;
+  final bool is24HourFormat;
+  final bool enableHapticFeedback;
+
+  const SpinnerTimePickerOptions({
+    required this.spinnerOptions,
+    required this.elementsSpace,
+    required this.is24HourFormat,
+    this.enableHapticFeedback = true,
+  });
+
+  factory SpinnerTimePickerOptions.fromContext(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+
+    return SpinnerTimePickerOptions(
+      spinnerOptions: RawNumberSpinnerOptions.fromContext(context),
+      elementsSpace: 0.1 * (0.8 * size.width),
+      is24HourFormat: true,
+      enableHapticFeedback: true,
+    );
+  }
+
+  SpinnerTimePickerOptions copyWith({
+    RawNumberSpinnerOptions? spinnerOptions,
+    double? elementsSpace,
+    bool? is24HourFormat,
+    bool? enableHapticFeedback,
+  }) {
+    return SpinnerTimePickerOptions(
+      spinnerOptions: spinnerOptions ?? this.spinnerOptions,
+      elementsSpace: elementsSpace ?? this.elementsSpace,
+      is24HourFormat: is24HourFormat ?? this.is24HourFormat,
+      enableHapticFeedback: enableHapticFeedback ?? this.enableHapticFeedback,
+    );
+  }
+}
+
 // Define a StatefulWidget for a custom time picker widget
 class SpinnerTimePicker extends StatefulWidget {
-  // Initialize parameters for the time picker
-  final TimeOfDay? initTime; // Initial time value
+  final TimeOfDay? initTime;
   final AlwaysChangeValueNotifier<TimeOfDay>? forceUpdateTimeNotifier;
-  final bool is24HourFormat; // Indicates if the time format is 24-hour
-  final double spinnerHeight; // Height of the widget
-  final double spinnerWidth; // Width of the widget
-  final double elementsSpace; // Space between hour and minute pickers
-  final double digitHeight; // Height of individual time elements
-  final Color spinnerBgColor; // Background color of the widget
-  final TextStyle selectedTextStyle; // Text style for selected time elements
-  final TextStyle
-      nonSelectedTextStyle; // Text style for non-selected time elements
-  final void Function(TimeOfDay selected)
-      onChangedSelectedTime; // Callback for time selection
-  final bool enableHapticFeedback;
-  final bool showInfinityBetweenSmallestAndLargestValue;
+  final SpinnerTimePickerOptions options;
+  final void Function(TimeOfDay selected) onChangedSelectedTime;
 
   const SpinnerTimePicker({
     this.initTime,
     this.forceUpdateTimeNotifier,
-    required this.is24HourFormat,
-    required this.spinnerHeight,
-    required this.spinnerWidth,
-    required this.elementsSpace,
-    required this.digitHeight,
-    required this.spinnerBgColor,
-    required this.selectedTextStyle,
-    required this.nonSelectedTextStyle,
+    required this.options,
     required this.onChangedSelectedTime,
-    this.enableHapticFeedback = true,
-    this.showInfinityBetweenSmallestAndLargestValue = false,
     super.key,
   }) : assert(
             (initTime != null || forceUpdateTimeNotifier != null) &&
@@ -49,24 +67,18 @@ class SpinnerTimePicker extends StatefulWidget {
 
 // Define the state for the SpinnerTimePicker widget
 class _SpinnerTimePickerState extends State<SpinnerTimePicker> {
-  DayPeriod selectedDayPeriod = DayPeriod.am; // Selected AM/PM period
-
-  int selectedHour = 0; // Selected hour value
+  DayPeriod selectedDayPeriod = DayPeriod.am;
+  int selectedHour = 0;
   AlwaysChangeValueNotifier<int> selectedHourNotifier =
       AlwaysChangeValueNotifier<int>(0);
-
-  int selectedMinute = 0; // Selected minute value
+  int selectedMinute = 0;
   AlwaysChangeValueNotifier<int> selectedMinuteNotifier =
       AlwaysChangeValueNotifier<int>(0);
-
   late AlwaysChangeValueNotifier<TimeOfDay> timeChangeNotifier;
-
-  // Options for AM and PM periods
   final _dayPeriodOptions = const [DayPeriod.am, DayPeriod.pm];
 
   @override
   void initState() {
-    // Initialize state variables based on the initial time
     if (widget.forceUpdateTimeNotifier == null) {
       timeChangeNotifier =
           AlwaysChangeValueNotifier<TimeOfDay>(widget.initTime!);
@@ -75,17 +87,14 @@ class _SpinnerTimePickerState extends State<SpinnerTimePicker> {
     }
 
     timeChangeNotifier.addListener(onChangeRunner);
-
     _setValues();
-
     super.initState();
   }
 
-  // Get a list indicating which day period is selected
   List<bool> get _isSelectedDayPeriod {
     return switch (selectedDayPeriod) {
-      DayPeriod.am => [true, false], // AM is selected
-      DayPeriod.pm => [false, true], // PM is selected
+      DayPeriod.am => [true, false],
+      DayPeriod.pm => [false, true],
     };
   }
 
@@ -100,7 +109,7 @@ class _SpinnerTimePickerState extends State<SpinnerTimePicker> {
   void _setValues() {
     selectedDayPeriod = timeChangeNotifier.value.period;
     selectedHourNotifier.value = selectedHour =
-        !widget.is24HourFormat && selectedDayPeriod == DayPeriod.pm
+        !widget.options.is24HourFormat && selectedDayPeriod == DayPeriod.pm
             ? timeChangeNotifier.value.hour - 12
             : timeChangeNotifier.value.hour;
     selectedMinuteNotifier.value =
@@ -116,13 +125,13 @@ class _SpinnerTimePickerState extends State<SpinnerTimePicker> {
         _hourPicker(),
         _timeSeparator(context),
         _minutePicker(),
-        if (!widget.is24HourFormat) SizedBox(width: 0.7 * widget.elementsSpace),
-        if (!widget.is24HourFormat) _dayPeriodSelector(),
+        if (!widget.options.is24HourFormat)
+          SizedBox(width: 0.7 * widget.options.elementsSpace),
+        if (!widget.options.is24HourFormat) _dayPeriodSelector(),
       ],
     );
   }
 
-  // Build the day period selector toggle buttons
   ToggleButtons _dayPeriodSelector() {
     return ToggleButtons(
       isSelected: _isSelectedDayPeriod,
@@ -139,20 +148,11 @@ class _SpinnerTimePickerState extends State<SpinnerTimePicker> {
     );
   }
 
-  // Build the minute picker
   RawNumberSpinner _minutePicker() {
     return RawNumberSpinner(
       forceUpdateValueNotifier: selectedMinuteNotifier,
       maxValue: 60,
-      height: widget.spinnerHeight,
-      width: widget.spinnerWidth,
-      digitHeight: widget.digitHeight,
-      nonSelectedTextStyle: widget.nonSelectedTextStyle,
-      selectedTextStyle: widget.selectedTextStyle,
-      spinnerBgColor: widget.spinnerBgColor,
-      enableHapticFeedback: widget.enableHapticFeedback,
-      showInfinityBetweenSmallestAndLargestValue:
-          widget.showInfinityBetweenSmallestAndLargestValue,
+      options: widget.options.spinnerOptions,
       onSelectedItemChanged: (value) {
         setState(() {
           selectedMinute = value;
@@ -162,10 +162,9 @@ class _SpinnerTimePickerState extends State<SpinnerTimePicker> {
     );
   }
 
-  // Build the time separator between hour and minute pickers
   SizedBox _timeSeparator(BuildContext context) {
     return SizedBox(
-      width: widget.elementsSpace,
+      width: widget.options.elementsSpace,
       child: Center(
         child: Text(
           ':',
@@ -176,20 +175,11 @@ class _SpinnerTimePickerState extends State<SpinnerTimePicker> {
     );
   }
 
-  // Build the hour picker
   RawNumberSpinner _hourPicker() {
     return RawNumberSpinner(
-      maxValue: widget.is24HourFormat ? 24 : 12,
+      maxValue: widget.options.is24HourFormat ? 24 : 12,
       forceUpdateValueNotifier: selectedHourNotifier,
-      height: widget.spinnerHeight,
-      width: widget.spinnerWidth,
-      digitHeight: widget.digitHeight,
-      nonSelectedTextStyle: widget.nonSelectedTextStyle,
-      selectedTextStyle: widget.selectedTextStyle,
-      spinnerBgColor: widget.spinnerBgColor,
-      enableHapticFeedback: widget.enableHapticFeedback,
-      showInfinityBetweenSmallestAndLargestValue:
-          widget.showInfinityBetweenSmallestAndLargestValue,
+      options: widget.options.spinnerOptions,
       onSelectedItemChanged: (value) async {
         setState(() {
           selectedHour = value;
@@ -199,10 +189,11 @@ class _SpinnerTimePickerState extends State<SpinnerTimePicker> {
     );
   }
 
-  // Update the selected time based on user choices
   void setSelectedTime() {
     final offset =
-        !widget.is24HourFormat && selectedDayPeriod == DayPeriod.pm ? 12 : 0;
+        !widget.options.is24HourFormat && selectedDayPeriod == DayPeriod.pm
+            ? 12
+            : 0;
     widget.onChangedSelectedTime(
         TimeOfDay(hour: selectedHour + offset, minute: selectedMinute));
   }

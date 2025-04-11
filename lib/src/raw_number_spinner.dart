@@ -5,43 +5,100 @@ import 'package:flutter/material.dart';
 import 'package:flutter_spinner_time_picker/src/always_change_value_notifier.dart';
 import 'package:gaimon/gaimon.dart';
 
-// Define a StatefulWidget for a time element picker widget
-class RawNumberSpinner extends StatefulWidget {
-  // Initialize parameters for the time element picker
-  final AlwaysChangeValueNotifier<int>
-      _forceUpdateValueNotifier; // Initial value of the picker
-  final int maxValue; // Maximum value of the picker
-  final int steps; // Steps for the picker
-  final double height; // Height of the widget
-  final double width; // Width of the widget
-  final double digitHeight; // Height of individual time elements
-  final TextStyle selectedTextStyle; // Text style for selected time elements
-  final TextStyle
-      nonSelectedTextStyle; // Text style for non-selected time elements
-  final Color spinnerBgColor; // Background color of the widget
-  final void Function(int value)
-      onSelectedItemChanged; // Callback for value selection
+class RawNumberSpinnerOptions {
+  final double height;
+  final double width;
+  final double digitHeight;
+  final TextStyle selectedTextStyle;
+  final TextStyle nonSelectedTextStyle;
+  final Color spinnerBgColor;
   final bool padNumbers;
   final bool enableHapticFeedback;
   final bool showInfinityBetweenSmallestAndLargestValue;
 
-  RawNumberSpinner({
-    AlwaysChangeValueNotifier<int>? forceUpdateValueNotifier,
-    required int maxValue,
+  const RawNumberSpinnerOptions({
     required this.height,
     required this.width,
     required this.digitHeight,
     required this.selectedTextStyle,
     required this.nonSelectedTextStyle,
-    required this.onSelectedItemChanged,
     required this.spinnerBgColor,
     this.padNumbers = true,
-    this.steps = 1,
     this.enableHapticFeedback = true,
     this.showInfinityBetweenSmallestAndLargestValue = false,
+  });
+
+  factory RawNumberSpinnerOptions.fromContext(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final isDarkMode =
+        MediaQuery.of(context).platformBrightness == Brightness.dark;
+    final size = MediaQuery.of(context).size;
+
+    return RawNumberSpinnerOptions(
+      height: 0.7 * (0.25 * size.height),
+      width: 0.19 * (0.85 * size.width),
+      digitHeight: 0.35 * (0.7 * (0.25 * size.height)),
+      spinnerBgColor:
+          isDarkMode ? colorScheme.primary : colorScheme.primaryContainer,
+      selectedTextStyle: TextStyle(
+        fontSize: 30,
+        fontWeight: FontWeight.w600,
+        color: isDarkMode ? colorScheme.primaryContainer : colorScheme.primary,
+      ),
+      nonSelectedTextStyle: TextStyle(
+        fontSize: 30,
+        color: isDarkMode
+            ? colorScheme.primaryContainer.withAlpha(200)
+            : colorScheme.primary.withAlpha(150),
+      ),
+    );
+  }
+
+  RawNumberSpinnerOptions copyWith({
+    double? height,
+    double? width,
+    double? digitHeight,
+    TextStyle? selectedTextStyle,
+    TextStyle? nonSelectedTextStyle,
+    Color? spinnerBgColor,
+    bool? padNumbers,
+    bool? enableHapticFeedback,
+    bool? showInfinityBetweenSmallestAndLargestValue,
+  }) {
+    return RawNumberSpinnerOptions(
+      height: height ?? this.height,
+      width: width ?? this.width,
+      digitHeight: digitHeight ?? this.digitHeight,
+      selectedTextStyle: selectedTextStyle ?? this.selectedTextStyle,
+      nonSelectedTextStyle: nonSelectedTextStyle ?? this.nonSelectedTextStyle,
+      spinnerBgColor: spinnerBgColor ?? this.spinnerBgColor,
+      padNumbers: padNumbers ?? this.padNumbers,
+      enableHapticFeedback: enableHapticFeedback ?? this.enableHapticFeedback,
+      showInfinityBetweenSmallestAndLargestValue:
+          showInfinityBetweenSmallestAndLargestValue ??
+              this.showInfinityBetweenSmallestAndLargestValue,
+    );
+  }
+}
+
+// Define a StatefulWidget for a time element picker widget
+class RawNumberSpinner extends StatefulWidget {
+  // Initialize parameters for the time element picker
+  final AlwaysChangeValueNotifier<int> _forceUpdateValueNotifier;
+  final int maxValue;
+  final int steps;
+  final RawNumberSpinnerOptions options;
+  final void Function(int value) onSelectedItemChanged;
+
+  RawNumberSpinner({
+    AlwaysChangeValueNotifier<int>? forceUpdateValueNotifier,
+    required int maxValue,
+    required this.options,
+    required this.onSelectedItemChanged,
+    this.steps = 1,
     super.key,
   })  : maxValue = (maxValue / steps).ceil() +
-            (showInfinityBetweenSmallestAndLargestValue ? 1 : 0),
+            (options.showInfinityBetweenSmallestAndLargestValue ? 1 : 0),
         _forceUpdateValueNotifier =
             forceUpdateValueNotifier ?? AlwaysChangeValueNotifier<int>(0);
 
@@ -84,15 +141,15 @@ class _RawNumberSpinnerState extends State<RawNumberSpinner> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: widget.height,
-      width: widget.width,
+      height: widget.options.height,
+      width: widget.options.width,
       decoration: BoxDecoration(
-        color: widget.spinnerBgColor,
+        color: widget.options.spinnerBgColor,
         borderRadius: BorderRadius.circular(10),
       ),
       child: ListWheelScrollView.useDelegate(
         controller: scrollController,
-        itemExtent: widget.digitHeight,
+        itemExtent: widget.options.digitHeight,
         // Height of each time element
         physics: const FixedExtentScrollPhysics(),
         childDelegate: ListWheelChildBuilderDelegate(
@@ -101,19 +158,12 @@ class _RawNumberSpinnerState extends State<RawNumberSpinner> {
                 widget.steps; // Wrap around the values
 
             final String numberText;
-            if (widget.showInfinityBetweenSmallestAndLargestValue &&
+            if (widget.options.showInfinityBetweenSmallestAndLargestValue &&
                 wrappedIndex == (widget.maxValue - 1) * widget.steps) {
               numberText = '∞';
-            } else if (widget.padNumbers) {
+            } else if (widget.options.padNumbers) {
               // Display with leading zero
-              numberText = wrappedIndex.toString().padLeft(
-                  log10((widget.maxValue -
-                              (widget.showInfinityBetweenSmallestAndLargestValue
-                                  ? 1
-                                  : 0)) *
-                          widget.steps)
-                      .ceil(),
-                  '0');
+              numberText = _getPaddedNumber(wrappedIndex);
             } else {
               numberText = wrappedIndex.toString();
             }
@@ -122,8 +172,8 @@ class _RawNumberSpinnerState extends State<RawNumberSpinner> {
               child: Text(
                 numberText,
                 style: wrappedIndex == _selectedValue
-                    ? widget.selectedTextStyle
-                    : widget.nonSelectedTextStyle,
+                    ? widget.options.selectedTextStyle
+                    : widget.options.nonSelectedTextStyle,
               ),
             );
           },
@@ -133,7 +183,7 @@ class _RawNumberSpinnerState extends State<RawNumberSpinner> {
             () {
               _selectedValue = (index % widget.maxValue) * widget.steps;
 
-              if (widget.showInfinityBetweenSmallestAndLargestValue &&
+              if (widget.options.showInfinityBetweenSmallestAndLargestValue &&
                   _selectedValue == (widget.maxValue - 1) * widget.steps) {
                 // when infinity is selected the value is -1
                 _selectedValue = -1;
@@ -143,7 +193,7 @@ class _RawNumberSpinnerState extends State<RawNumberSpinner> {
           // Notify the parent about the value change
           widget.onSelectedItemChanged(_selectedValue);
 
-          if (widget.enableHapticFeedback) {
+          if (widget.options.enableHapticFeedback) {
             if (Platform.isIOS || Platform.isAndroid) {
               Gaimon.canSupportsHaptic.then((value) {
                 if (value) {
@@ -156,6 +206,15 @@ class _RawNumberSpinnerState extends State<RawNumberSpinner> {
       ),
     );
   }
+
+  String _getPaddedNumber(int number) => number.toString().padLeft(
+      log10((widget.maxValue -
+                  (widget.options.showInfinityBetweenSmallestAndLargestValue
+                      ? 1
+                      : 0)) *
+              widget.steps)
+          .ceil(),
+      '0');
 
   double log10(num x) => log(x) / ln10;
 }

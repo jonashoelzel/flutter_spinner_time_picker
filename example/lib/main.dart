@@ -12,7 +12,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Time Picker Example',
+      title: 'Spinner Picker Example',
       darkTheme: ThemeData(
         primarySwatch: Colors.deepPurple,
         useMaterial3: true,
@@ -27,51 +27,42 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key});
+class TimePage extends StatefulWidget {
+  const TimePage({super.key});
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  State<TimePage> createState() => _TimePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  TimeOfDay selectedTime = TimeOfDay.now();
+class _TimePageState extends State<TimePage> {
   late AlwaysChangeValueNotifier<TimeOfDay> timeChangeNotifier;
-  bool showInfinityBetweenSmallestAndLargestValue = false;
-  bool showInfinityInTimePicker = false;
-  bool showInfinityInDurationPicker = false;
-  bool padNumbers = false;
-
-  Duration selectedDuration =
-      const Duration(hours: 1, minutes: 20, seconds: 5, milliseconds: 8);
-  late AlwaysChangeValueNotifier<Duration> durationChangeNotifier;
-
-  int selectedNumber = 0;
-  late AlwaysChangeValueNotifier<int> numberChangeNotifier;
-
-  int shownPageNumber = 0;
+  TimeOfDay selectedTime = TimeOfDay.now();
 
   @override
   void initState() {
     timeChangeNotifier = AlwaysChangeValueNotifier(selectedTime);
-    durationChangeNotifier = AlwaysChangeValueNotifier(selectedDuration);
-    numberChangeNotifier = AlwaysChangeValueNotifier(selectedNumber);
     super.initState();
   }
 
   @override
   void dispose() {
     timeChangeNotifier.dispose();
-    durationChangeNotifier.dispose();
     super.dispose();
   }
 
   void _showTimePicker() async {
+    final options =
+        SpinnerTimePickerDialogOptions.fromContext(context).copyWith(
+      showNowButton: true,
+      pickerOptions: SpinnerTimePickerOptions.fromContext(context).copyWith(
+        is24HourFormat: false,
+      ),
+    );
+
     final pickedTime = await showSpinnerTimePicker(
       context,
       initTime: selectedTime,
-      is24HourFormat: false,
-      showInfinityBetweenSmallestAndLargestValue: showInfinityInTimePicker,
+      options: options,
     );
 
     if (pickedTime != null) {
@@ -81,44 +72,24 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
-  void _showDurationPicker() async {
-    final pickedNumber = await showSpinnerDurationPicker(
-      initDuration: selectedDuration,
-      hideMilliseconds: false,
-      spinnerWidth: 75,
-      spinnerHeight: 150,
-      contentPadding: const EdgeInsets.all(10),
-      showInfinityBetweenSmallestAndLargestValue: showInfinityInDurationPicker,
-      showInfinityButton: true,
-      context,
+  @override
+  Widget build(BuildContext context) {
+    final pickerOptions =
+        SpinnerTimePickerOptions.fromContext(context).copyWith(
+      elementsSpace: 40,
+      is24HourFormat: false,
+      spinnerOptions: RawNumberSpinnerOptions.fromContext(context).copyWith(
+        height: 150,
+        width: 80,
+        digitHeight: 50,
+        selectedTextStyle:
+            const TextStyle(fontSize: 30, color: Colors.deepPurple),
+        nonSelectedTextStyle:
+            const TextStyle(fontSize: 30, color: Colors.deepPurpleAccent),
+        spinnerBgColor: Colors.deepPurpleAccent.withOpacity(0.4),
+      ),
     );
 
-    if (pickedNumber != null) {
-      setState(() {
-        durationChangeNotifier.value = selectedDuration = pickedNumber;
-      });
-    }
-  }
-
-  void _showNumberPicker() async {
-    final pickedNumber = await showSpinnerNumberPicker(
-      initValue: selectedNumber,
-      elementsSpace: 75,
-      unit: '\$',
-      maxValue: 1000,
-      steps: 10,
-      padNumbers: padNumbers,
-      context,
-    );
-
-    if (pickedNumber != null) {
-      setState(() {
-        numberChangeNotifier.value = selectedNumber = pickedNumber;
-      });
-    }
-  }
-
-  Widget _pageOne() {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -137,46 +108,102 @@ class _MyHomePageState extends State<MyHomePage> {
             onPressed: _showTimePicker,
             child: const Text('Pick a Time'),
           ),
-          const SizedBox(height: 20),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Text('Show infinity value'),
-              Checkbox(
-                value: showInfinityInTimePicker,
-                onChanged: (bool? value) {
-                  setState(() {
-                    showInfinityInTimePicker = value ?? false;
-                  });
-                },
-              ),
-            ],
-          ),
           const SizedBox(height: 40),
           SpinnerTimePicker(
-            elementsSpace: 40,
-            spinnerHeight: 150,
-            spinnerWidth: 80,
-            is24HourFormat: false,
-            digitHeight: 50,
             forceUpdateTimeNotifier: timeChangeNotifier,
+            options: pickerOptions,
             onChangedSelectedTime: (updatedTime) => setState(() {
               selectedTime = updatedTime;
             }),
-            selectedTextStyle:
-                const TextStyle(fontSize: 30, color: Colors.deepPurple),
-            nonSelectedTextStyle:
-                const TextStyle(fontSize: 30, color: Colors.deepPurpleAccent),
-            spinnerBgColor: Colors.deepPurpleAccent.withOpacity(0.4),
-            showInfinityBetweenSmallestAndLargestValue:
-                showInfinityInTimePicker,
           ),
         ],
       ),
     );
   }
+}
 
-  Widget _pageTwo() {
+class DurationPage extends StatefulWidget {
+  const DurationPage({super.key});
+
+  @override
+  State<DurationPage> createState() => _DurationPageState();
+}
+
+class _DurationPageState extends State<DurationPage> {
+  late AlwaysChangeValueNotifier<Duration> durationChangeNotifier;
+  Duration selectedDuration =
+      const Duration(hours: 1, minutes: 20, seconds: 5, milliseconds: 8);
+  bool showInfinityInDurationPicker = false;
+
+  @override
+  void initState() {
+    durationChangeNotifier = AlwaysChangeValueNotifier(selectedDuration);
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    durationChangeNotifier.dispose();
+    super.dispose();
+  }
+
+  void _showDurationPicker() async {
+    final options =
+        SpinnerDurationPickerDialogOptions.fromContext(context).copyWith(
+      showInfinityButton: true,
+      contentPadding: const EdgeInsets.all(10),
+      infinityButtonLabel: 'Infinite',
+      pickerOptions: SpinnerDurationPickerOptions.fromContext(context).copyWith(
+        hideMilliseconds: false,
+        elementsSpace: 40,
+        spinnerOptions: RawNumberSpinnerOptions.fromContext(context).copyWith(
+          height: 150,
+          width: 65,
+          digitHeight: 50,
+          selectedTextStyle:
+              const TextStyle(fontSize: 30, color: Colors.deepPurple),
+        ),
+        showInfinityBetweenSmallestAndLargestValue:
+            showInfinityInDurationPicker,
+      ),
+    );
+
+    final pickedDuration = await showSpinnerDurationPicker(
+      context,
+      initDuration: selectedDuration,
+      options: options,
+    );
+
+    if (pickedDuration != null) {
+      setState(() {
+        if (pickedDuration.isNegative) {
+          showInfinityInDurationPicker = true;
+        }
+        durationChangeNotifier.value = selectedDuration = pickedDuration;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final pickerOptions =
+        SpinnerDurationPickerOptions.fromContext(context).copyWith(
+      elementsSpace: 40,
+      hideMilliseconds: false,
+      spinnerOptions: RawNumberSpinnerOptions.fromContext(context).copyWith(
+        height: 150,
+        width: 50,
+        digitHeight: 50,
+        selectedTextStyle:
+            const TextStyle(fontSize: 30, color: Colors.deepPurple),
+        nonSelectedTextStyle:
+            const TextStyle(fontSize: 30, color: Colors.deepPurpleAccent),
+        spinnerBgColor: Colors.deepPurpleAccent.withOpacity(0.4),
+        showInfinityBetweenSmallestAndLargestValue:
+            showInfinityInDurationPicker,
+      ),
+    );
+
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -187,7 +214,7 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
           const SizedBox(height: 10),
           Text(
-            '${selectedDuration.inHours}:${selectedDuration.inMinutes.remainder(60).toString().padLeft(2, '0')}:${(selectedDuration.inSeconds.remainder(60).toString().padLeft(2, '0'))}.${(selectedDuration.inMilliseconds.remainder(1000) ~/ 100)}',
+            _getDurationString(selectedDuration),
             style: const TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 20),
@@ -213,26 +240,17 @@ class _MyHomePageState extends State<MyHomePage> {
           const SizedBox(height: 40),
           SpinnerDurationPicker(
             forceUpdateDurationNotifier: durationChangeNotifier,
-            spinnerHeight: 150,
-            spinnerWidth: 50,
-            elementsSpace: 40,
-            digitHeight: 50,
-            spinnerBgColor: Colors.deepPurpleAccent.withOpacity(0.4),
+            options: pickerOptions,
             onChangedSelectedDuration: (updatedDuration) => setState(() {
               selectedDuration = updatedDuration;
             }),
-            selectedTextStyle:
-                const TextStyle(fontSize: 30, color: Colors.deepPurple),
-            nonSelectedTextStyle:
-                const TextStyle(fontSize: 30, color: Colors.deepPurpleAccent),
-            hideMilliseconds: false,
-            showInfinityBetweenSmallestAndLargestValue:
-                showInfinityInDurationPicker,
           ),
           TextButton(
             onPressed: () {
               setState(() {
                 durationChangeNotifier.value = const Duration(
+                    hours: 3, minutes: 20, seconds: 1, milliseconds: 100);
+                selectedDuration = const Duration(
                     hours: 3, minutes: 20, seconds: 1, milliseconds: 100);
               });
             },
@@ -242,6 +260,8 @@ class _MyHomePageState extends State<MyHomePage> {
             onPressed: () {
               setState(() {
                 durationChangeNotifier.value =
+                    const Duration(hours: 1, minutes: 5, seconds: 2);
+                selectedDuration =
                     const Duration(hours: 1, minutes: 5, seconds: 2);
               });
             },
@@ -253,6 +273,8 @@ class _MyHomePageState extends State<MyHomePage> {
                 showInfinityInDurationPicker = true;
                 durationChangeNotifier.value = const Duration(
                     hours: -1, minutes: -1, seconds: -1, milliseconds: -1);
+                selectedDuration = const Duration(
+                    hours: -1, minutes: -1, seconds: -1, milliseconds: -1);
               });
             },
             child: const Text('Set: ∞'),
@@ -262,7 +284,91 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  Widget _pageThree() {
+  String _getDurationString(Duration duration) {
+    final hours = duration.inHours.toString();
+    final minutes = duration.inMinutes.remainder(60).toString().padLeft(2, '0');
+    final seconds = duration.inSeconds.remainder(60).toString().padLeft(2, '0');
+    final milliseconds =
+        (duration.inMilliseconds.remainder(1000) ~/ 100).toString();
+
+    return '$hours:$minutes:$seconds.$milliseconds';
+  }
+}
+
+class NumberPage extends StatefulWidget {
+  const NumberPage({super.key});
+
+  @override
+  State<NumberPage> createState() => _NumberPageState();
+}
+
+class _NumberPageState extends State<NumberPage> {
+  late AlwaysChangeValueNotifier<int> numberChangeNotifier;
+  int selectedNumber = 0;
+  bool showInfinityBetweenSmallestAndLargestValue = false;
+  bool padNumbers = false;
+
+  @override
+  void initState() {
+    numberChangeNotifier = AlwaysChangeValueNotifier(selectedNumber);
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    numberChangeNotifier.dispose();
+    super.dispose();
+  }
+
+  void _showNumberPicker() async {
+    final options =
+        SpinnerNumberPickerDialogOptions.fromContext(context).copyWith(
+      showInfinityButton: true,
+      pickerOptions: SpinnerNumberPickerOptions.fromContext(context).copyWith(
+        elementsSpace: 75,
+        unit: '\$',
+        spinnerOptions: RawNumberSpinnerOptions.fromContext(context).copyWith(
+          padNumbers: padNumbers,
+        ),
+      ),
+    );
+
+    final pickedNumber = await showSpinnerNumberPicker(
+      context,
+      initValue: selectedNumber,
+      maxValue: 1000,
+      steps: 10,
+      options: options,
+    );
+
+    if (pickedNumber != null) {
+      setState(() {
+        numberChangeNotifier.value = selectedNumber = pickedNumber;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final pickerOptions =
+        SpinnerNumberPickerOptions.fromContext(context).copyWith(
+      elementsSpace: 75,
+      unit: '\$',
+      spinnerOptions: RawNumberSpinnerOptions.fromContext(context).copyWith(
+        height: 150,
+        width: 80,
+        digitHeight: 50,
+        selectedTextStyle:
+            const TextStyle(fontSize: 30, color: Colors.deepPurple),
+        nonSelectedTextStyle:
+            const TextStyle(fontSize: 30, color: Colors.deepPurpleAccent),
+        spinnerBgColor: Colors.deepPurpleAccent.withOpacity(0.4),
+        showInfinityBetweenSmallestAndLargestValue:
+            showInfinityBetweenSmallestAndLargestValue,
+        padNumbers: padNumbers,
+      ),
+    );
+
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -313,30 +419,29 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
           const SizedBox(height: 40),
           SpinnerNumberPicker(
-            showInfinityBetweenSmallestAndLargestValue:
-                showInfinityBetweenSmallestAndLargestValue,
             forceUpdateValueNotifier: numberChangeNotifier,
-            spinnerHeight: 150,
-            spinnerWidth: 80,
-            elementsSpace: 75,
-            digitHeight: 50,
-            spinnerBgColor: Colors.deepPurpleAccent.withOpacity(0.4),
+            maxValue: 10000,
+            steps: 10,
+            options: pickerOptions,
             onChangedSelectedValue: (updatedValue) => setState(() {
               selectedNumber = updatedValue;
             }),
-            selectedTextStyle:
-                const TextStyle(fontSize: 30, color: Colors.deepPurple),
-            nonSelectedTextStyle:
-                const TextStyle(fontSize: 30, color: Colors.deepPurpleAccent),
-            maxValue: 10000,
-            steps: 10,
-            unit: '\$',
-            padNumbers: padNumbers,
           ),
         ],
       ),
     );
   }
+}
+
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({super.key});
+
+  @override
+  State<MyHomePage> createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State<MyHomePage> {
+  int shownPageNumber = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -395,9 +500,9 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: SingleChildScrollView(
         child: switch (shownPageNumber) {
-          0 => _pageOne(),
-          1 => _pageTwo(),
-          2 => _pageThree(),
+          0 => const TimePage(),
+          1 => const DurationPage(),
+          2 => const NumberPage(),
           _ => Container(),
         },
       ),
