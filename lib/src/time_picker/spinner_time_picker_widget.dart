@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_spinner_time_picker/src/always_change_value_notifier.dart';
 
-import '../spinner_numeric_picker_widget.dart';
+import '../raw_number_spinner.dart';
 
 // Define a StatefulWidget for a custom time picker widget
 class SpinnerTimePicker extends StatefulWidget {
@@ -140,8 +140,8 @@ class _SpinnerTimePickerState extends State<SpinnerTimePicker> {
   }
 
   // Build the minute picker
-  SpinnerNumericPicker _minutePicker() {
-    return SpinnerNumericPicker(
+  RawNumberSpinner _minutePicker() {
+    return RawNumberSpinner(
       forceUpdateValueNotifier: selectedMinuteNotifier,
       maxValue: 60,
       height: widget.spinnerHeight,
@@ -177,8 +177,8 @@ class _SpinnerTimePickerState extends State<SpinnerTimePicker> {
   }
 
   // Build the hour picker
-  SpinnerNumericPicker _hourPicker() {
-    return SpinnerNumericPicker(
+  RawNumberSpinner _hourPicker() {
+    return RawNumberSpinner(
       maxValue: widget.is24HourFormat ? 24 : 12,
       forceUpdateValueNotifier: selectedHourNotifier,
       height: widget.spinnerHeight,

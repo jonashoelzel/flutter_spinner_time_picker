@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_spinner_time_picker/src/always_change_value_notifier.dart';
 
-import '../spinner_numeric_picker_widget.dart';
+import '../raw_number_spinner.dart';
 
 class SpinnerNumberPicker extends StatelessWidget {
   final AlwaysChangeValueNotifier<int> _forceUpdateValueNotifier;
@@ -56,7 +56,7 @@ class SpinnerNumberPicker extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       textDirection: TextDirection.ltr,
       children: [
-        SpinnerNumericPicker(
+        RawNumberSpinner(
           forceUpdateValueNotifier: _forceUpdateValueNotifier,
           maxValue: maxValue,
           steps: steps,

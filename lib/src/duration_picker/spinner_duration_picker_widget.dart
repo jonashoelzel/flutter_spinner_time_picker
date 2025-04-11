@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_spinner_time_picker/src/always_change_value_notifier.dart';
 
-import '../spinner_numeric_picker_widget.dart';
+import '../raw_number_spinner.dart';
 
 // Define a StatefulWidget for a custom duration picker widget
 class SpinnerDurationPicker extends StatefulWidget {
@@ -135,8 +135,8 @@ class _SpinnerDurationPickerState extends State<SpinnerDurationPicker> {
     );
   }
 
-  SpinnerNumericPicker _millisecondsPicker() {
-    return SpinnerNumericPicker(
+  RawNumberSpinner _millisecondsPicker() {
+    return RawNumberSpinner(
       forceUpdateValueNotifier: selectedMillisecondNotifier,
       maxValue: 10,
       height: widget.spinnerHeight - 25,
@@ -161,8 +161,8 @@ class _SpinnerDurationPickerState extends State<SpinnerDurationPicker> {
   }
 
   // Build the second picker
-  SpinnerNumericPicker _secondPicker() {
-    return SpinnerNumericPicker(
+  RawNumberSpinner _secondPicker() {
+    return RawNumberSpinner(
       forceUpdateValueNotifier: selectedSecondNotifier,
       maxValue: 60,
       height: widget.spinnerHeight,
@@ -184,8 +184,8 @@ class _SpinnerDurationPickerState extends State<SpinnerDurationPicker> {
   }
 
   // Build the minute picker
-  SpinnerNumericPicker _minutePicker() {
-    return SpinnerNumericPicker(
+  RawNumberSpinner _minutePicker() {
+    return RawNumberSpinner(
       forceUpdateValueNotifier: selectedMinuteNotifier,
       maxValue: 60,
       height: widget.spinnerHeight,
@@ -207,8 +207,8 @@ class _SpinnerDurationPickerState extends State<SpinnerDurationPicker> {
   }
 
   // Build the hour picker
-  SpinnerNumericPicker _hourPicker() {
-    return SpinnerNumericPicker(
+  RawNumberSpinner _hourPicker() {
+    return RawNumberSpinner(
       maxValue: 100,
       forceUpdateValueNotifier: selectedHourNotifier,
       height: widget.spinnerHeight,

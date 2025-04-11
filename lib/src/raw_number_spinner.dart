@@ -6,7 +6,7 @@ import 'package:flutter_spinner_time_picker/src/always_change_value_notifier.dar
 import 'package:gaimon/gaimon.dart';
 
 // Define a StatefulWidget for a time element picker widget
-class SpinnerNumericPicker extends StatefulWidget {
+class RawNumberSpinner extends StatefulWidget {
   // Initialize parameters for the time element picker
   final AlwaysChangeValueNotifier<int>
       _forceUpdateValueNotifier; // Initial value of the picker
@@ -25,7 +25,7 @@ class SpinnerNumericPicker extends StatefulWidget {
   final bool enableHapticFeedback;
   final bool showInfinityBetweenSmallestAndLargestValue;
 
-  SpinnerNumericPicker({
+  RawNumberSpinner({
     AlwaysChangeValueNotifier<int>? forceUpdateValueNotifier,
     required int maxValue,
     required this.height,
@@ -46,11 +46,11 @@ class SpinnerNumericPicker extends StatefulWidget {
             forceUpdateValueNotifier ?? AlwaysChangeValueNotifier<int>(0);
 
   @override
-  State<SpinnerNumericPicker> createState() => _SpinnerNumericPickerState();
+  State<RawNumberSpinner> createState() => _RawNumberSpinnerState();
 }
 
 // Define the state for the TimeElementPicker widget
-class _SpinnerNumericPickerState extends State<SpinnerNumericPicker> {
+class _RawNumberSpinnerState extends State<RawNumberSpinner> {
   late FixedExtentScrollController scrollController;
 
   late int _selectedValue;
