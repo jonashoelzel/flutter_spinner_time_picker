@@ -67,7 +67,9 @@ class SpinnerNumberPicker extends StatelessWidget {
           'Either initValue xor forceValueChangeNotifier must be provided',
         ),
         _forceUpdateValueNotifier = forceUpdateValueNotifier ??
-            AlwaysChangeValueNotifier<int>(initValue!);
+            AlwaysChangeValueNotifier<int>(
+              initValue == -1 ? maxValue : initValue!,
+            );
 
   @override
   Widget build(BuildContext context) {

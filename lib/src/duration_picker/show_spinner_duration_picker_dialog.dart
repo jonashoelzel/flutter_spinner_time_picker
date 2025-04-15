@@ -1,6 +1,7 @@
 // ignore_for_file: no_leading_underscores_for_local_identifiers
 
 import 'package:flutter/material.dart';
+export 'spinner_duration_picker_widget.dart' show INFINITY_DURATION;
 
 // Import custom widget used in the dialog
 import 'spinner_duration_picker_widget.dart';
@@ -139,12 +140,7 @@ Future<Duration?> showSpinnerDurationPicker(
             if (effectiveOptions.showInfinityButton)
               TextButton(
                 style: effectiveOptions.buttonStyle,
-                onPressed: () => Navigator.of(context).pop(const Duration(
-                  hours: -1,
-                  minutes: -1,
-                  seconds: -1,
-                  milliseconds: -1,
-                )),
+                onPressed: () => Navigator.of(context).pop(INFINITY_DURATION),
                 child: Text(effectiveOptions.infinityButtonLabel,
                     style: effectiveOptions.buttonTextStyle),
               ),

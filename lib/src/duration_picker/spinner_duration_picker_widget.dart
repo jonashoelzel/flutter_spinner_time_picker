@@ -44,6 +44,12 @@ class SpinnerDurationPickerOptions {
     bool? enableHapticFeedback,
     bool? showInfinityBetweenSmallestAndLargestValue,
   }) {
+    spinnerOptions = spinnerOptions?.copyWith(
+      showInfinityBetweenSmallestAndLargestValue:
+          showInfinityBetweenSmallestAndLargestValue ??
+              this.showInfinityBetweenSmallestAndLargestValue,
+    );
+
     return SpinnerDurationPickerOptions(
       spinnerOptions: spinnerOptions ?? this.spinnerOptions,
       elementsSpace: elementsSpace ?? this.elementsSpace,
@@ -283,3 +289,10 @@ class _SpinnerDurationPickerState extends State<SpinnerDurationPicker> {
     ));
   }
 }
+
+const Duration INFINITY_DURATION = Duration(
+  hours: -1,
+  minutes: -1,
+  seconds: -1,
+  milliseconds: -1,
+);
