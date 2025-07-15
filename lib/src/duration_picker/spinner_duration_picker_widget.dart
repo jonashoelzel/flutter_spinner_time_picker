@@ -131,15 +131,18 @@ class _SpinnerDurationPickerState extends State<SpinnerDurationPicker> {
   }
 
   void _setValues() {
-    selectedHourNotifier.value =
-        selectedHour = durationChangeNotifier.value.inHours;
-    selectedMinuteNotifier.value =
-        selectedMinute = durationChangeNotifier.value.inMinutes.remainder(60);
-    selectedSecondNotifier.value =
-        selectedSecond = durationChangeNotifier.value.inSeconds.remainder(60);
+    // Round to nearest 100ms (0.1 second) before breaking down into components
+    final totalMilliseconds = durationChangeNotifier.value.inMilliseconds;
+    final roundedMilliseconds = (totalMilliseconds / 100).round() * 100;
+    final roundedDuration = Duration(milliseconds: roundedMilliseconds);
 
-    final milliseconds =
-        durationChangeNotifier.value.inMilliseconds.remainder(1000);
+    selectedHourNotifier.value = selectedHour = roundedDuration.inHours;
+    selectedMinuteNotifier.value =
+        selectedMinute = roundedDuration.inMinutes.remainder(60);
+    selectedSecondNotifier.value =
+        selectedSecond = roundedDuration.inSeconds.remainder(60);
+
+    final milliseconds = roundedDuration.inMilliseconds.remainder(1000);
     selectedMillisecondNotifier.value =
         selectedMillisecond = milliseconds == -1 ? -1 : milliseconds ~/ 100;
   }
