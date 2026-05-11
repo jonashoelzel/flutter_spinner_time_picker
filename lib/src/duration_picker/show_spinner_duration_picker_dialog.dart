@@ -104,6 +104,7 @@ Future<Duration?> showSpinnerDurationPicker(
   BuildContext context, {
   Duration? initDuration,
   bool barrierDismissible = true,
+  bool useRootNavigator = false,
   SpinnerDurationPickerDialogOptions? options,
 }) async {
   final effectiveOptions =
@@ -115,6 +116,7 @@ Future<Duration?> showSpinnerDurationPicker(
   // Show the dialog and get the selected duration when the dialog is dismissed
   return showDialog<Duration?>(
     context: context,
+    useRootNavigator: useRootNavigator,
     barrierDismissible: barrierDismissible,
     builder: (context) {
       return Theme(
