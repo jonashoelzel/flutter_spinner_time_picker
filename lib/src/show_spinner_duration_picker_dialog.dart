@@ -16,7 +16,6 @@ Future<Duration?> showSpinnerDurationPicker(
   ButtonStyle? buttonStyle,
   TextStyle? buttonTextStyle,
   bool barrierDismissible = true,
-  bool useRootNavigator = false,
   Duration? initDuration,
   double? height,
   double? width,
@@ -114,7 +113,6 @@ Future<Duration?> showSpinnerDurationPicker(
   // Show the dialog and get the selected duration when the dialog is dismissed
   await showDialog<void>(
     context: context,
-    useRootNavigator: useRootNavigator,
     barrierDismissible: barrierDismissible,
     builder: (context) {
       return Theme(

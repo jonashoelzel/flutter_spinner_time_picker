@@ -16,7 +16,6 @@ Future<TimeOfDay?> showSpinnerTimePicker(
   ButtonStyle? buttonStyle,
   TextStyle? buttonTextStyle,
   bool barrierDismissible = true,
-  bool useRootNavigator = false,
   TimeOfDay? initTime,
   bool? is24HourFormat,
   double? height,
@@ -107,7 +106,6 @@ Future<TimeOfDay?> showSpinnerTimePicker(
   // Show the dialog and get the selected time when the dialog is dismissed
   await showDialog<void>(
     context: context,
-    useRootNavigator: useRootNavigator,
     barrierDismissible: barrierDismissible,
     builder: (context) {
       return Theme(
