@@ -1,5 +1,6 @@
 library flutter_spinner_time_picker;
 
+export 'src/common/adaptive_spinner_layout.dart';
 export 'src/time_picker/show_spinner_time_picker_dialog.dart';
 export 'src/raw_number_spinner.dart';
 export 'src/time_picker/spinner_time_picker_widget.dart';

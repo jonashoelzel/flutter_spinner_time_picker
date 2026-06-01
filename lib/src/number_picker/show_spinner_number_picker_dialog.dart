@@ -1,7 +1,6 @@
 // ignore_for_file: no_leading_underscores_for_local_identifiers
 
 import 'package:flutter/material.dart';
-import 'package:flutter_spinner_time_picker/src/always_change_value_notifier.dart';
 
 // Import custom widget used in the dialog
 import 'spinner_number_picker_widget.dart';
@@ -14,7 +13,14 @@ class SpinnerNumberPickerDialogOptions {
   final ButtonStyle? buttonStyle;
   final TextStyle buttonTextStyle;
   final double height;
-  final double width;
+
+  /// Width of the dialog content.
+  ///
+  /// When `null` (the default) the content sizes itself to the picker's
+  /// intrinsic width and is capped at the available dialog width, so the
+  /// layout always fits regardless of the unit label, locale or text scale.
+  /// Provide a value only to force a fixed width.
+  final double? width;
   final EdgeInsets? contentPadding;
   final String cancelButtonLabel;
   final String okButtonLabel;
@@ -30,7 +36,7 @@ class SpinnerNumberPickerDialogOptions {
     this.buttonStyle,
     required this.buttonTextStyle,
     required this.height,
-    required this.width,
+    this.width,
     this.contentPadding,
     required this.cancelButtonLabel,
     required this.okButtonLabel,
@@ -55,7 +61,6 @@ class SpinnerNumberPickerDialogOptions {
         color: colorScheme.primary,
       ),
       height: 0.25 * size.height,
-      width: 0.85 * size.width,
       cancelButtonLabel: 'Cancel',
       okButtonLabel: "Done",
       infinityButtonLabel: "Infinity",

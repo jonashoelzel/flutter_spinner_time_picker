@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_spinner_time_picker/src/always_change_value_notifier.dart';
 
+import '../common/adaptive_spinner_layout.dart';
 import '../raw_number_spinner.dart';
 
 class SpinnerNumberPickerOptions {
@@ -73,9 +74,7 @@ class SpinnerNumberPicker extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      textDirection: TextDirection.ltr,
+    return AdaptiveSpinnerLayout(
       children: [
         RawNumberSpinner(
           forceUpdateValueNotifier: _forceUpdateValueNotifier,
@@ -86,9 +85,12 @@ class SpinnerNumberPicker extends StatelessWidget {
         ),
         options.unit == null
             ? const SizedBox()
-            : SizedBox(
-                width: options.elementsSpace,
+            : ConstrainedBox(
+                // Reserve [elementsSpace] for spacing but allow the box to grow
+                // so a wide unit label is never clipped.
+                constraints: BoxConstraints(minWidth: options.elementsSpace),
                 child: Row(
+                  mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     SizedBox(width: 0.15 * options.elementsSpace),

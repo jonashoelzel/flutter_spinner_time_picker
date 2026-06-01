@@ -7,6 +7,12 @@ import 'package:gaimon/gaimon.dart';
 
 class RawNumberSpinnerOptions {
   final double height;
+
+  /// Minimum width of the spinner's coloured background box.
+  ///
+  /// Acts as a floor: the box is never narrower than [width], but grows to fit
+  /// the widest digit plus [digitHorizontalPadding] on each side so the numbers
+  /// always have breathing room — even with a large font or text-scale factor.
   final double width;
   final double digitHeight;
   final TextStyle selectedTextStyle;
@@ -15,6 +21,14 @@ class RawNumberSpinnerOptions {
   final bool padNumbers;
   final bool enableHapticFeedback;
   final bool showInfinityBetweenSmallestAndLargestValue;
+
+  /// Horizontal gap kept between the widest digit and each side of the coloured
+  /// background box.
+  ///
+  /// When `null` (the default) a font-proportional padding is used, so larger
+  /// fonts automatically get more breathing room. Pass an explicit value
+  /// (including `0`) to override.
+  final double? digitHorizontalPadding;
 
   const RawNumberSpinnerOptions({
     required this.height,
@@ -26,7 +40,13 @@ class RawNumberSpinnerOptions {
     this.padNumbers = true,
     this.enableHapticFeedback = true,
     this.showInfinityBetweenSmallestAndLargestValue = false,
+    this.digitHorizontalPadding,
   });
+
+  /// The effective per-side horizontal padding, resolving the font-proportional
+  /// default when [digitHorizontalPadding] is `null`.
+  double get effectiveDigitHorizontalPadding =>
+      digitHorizontalPadding ?? 0.35 * (selectedTextStyle.fontSize ?? 28);
 
   factory RawNumberSpinnerOptions.fromContext(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
@@ -64,6 +84,7 @@ class RawNumberSpinnerOptions {
     bool? padNumbers,
     bool? enableHapticFeedback,
     bool? showInfinityBetweenSmallestAndLargestValue,
+    double? digitHorizontalPadding,
   }) {
     return RawNumberSpinnerOptions(
       height: height ?? this.height,
@@ -77,8 +98,34 @@ class RawNumberSpinnerOptions {
       showInfinityBetweenSmallestAndLargestValue:
           showInfinityBetweenSmallestAndLargestValue ??
               this.showInfinityBetweenSmallestAndLargestValue,
+      digitHorizontalPadding:
+          digitHorizontalPadding ?? this.digitHorizontalPadding,
     );
   }
+}
+
+/// Computes the width of a spinner's coloured background box.
+///
+/// Measures the widest rendered digit string (derived from [largestValue],
+/// honouring the current [textScaler]) and adds
+/// [RawNumberSpinnerOptions.effectiveDigitHorizontalPadding] on each side. The
+/// configured [RawNumberSpinnerOptions.width] is used only as a floor, so the
+/// numbers always keep their breathing room regardless of font or text scale.
+double resolveSpinnerBoxWidth({
+  required RawNumberSpinnerOptions options,
+  required int largestValue,
+  required TextScaler textScaler,
+}) {
+  final digitCount = max(1, largestValue.abs().toString().length);
+  final painter = TextPainter(
+    text: TextSpan(text: '8' * digitCount, style: options.selectedTextStyle),
+    textDirection: TextDirection.ltr,
+    textScaler: textScaler,
+  )..layout();
+
+  final contentWidth =
+      painter.width + 2 * options.effectiveDigitHorizontalPadding;
+  return max(options.width, contentWidth);
 }
 
 // Define a StatefulWidget for a time element picker widget
@@ -140,9 +187,15 @@ class _RawNumberSpinnerState extends State<RawNumberSpinner> {
 
   @override
   Widget build(BuildContext context) {
+    final boxWidth = resolveSpinnerBoxWidth(
+      options: widget.options,
+      largestValue: (widget.maxValue - 1) * widget.steps,
+      textScaler: MediaQuery.textScalerOf(context),
+    );
+
     return Container(
       height: widget.options.height,
-      width: widget.options.width,
+      width: boxWidth,
       decoration: BoxDecoration(
         color: widget.options.spinnerBgColor,
         borderRadius: BorderRadius.circular(10),

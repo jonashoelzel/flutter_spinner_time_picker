@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_spinner_time_picker/src/always_change_value_notifier.dart';
 
+import '../common/adaptive_spinner_layout.dart';
 import '../raw_number_spinner.dart';
 
 class SpinnerDurationPickerOptions {
@@ -149,9 +150,7 @@ class _SpinnerDurationPickerState extends State<SpinnerDurationPicker> {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      textDirection: TextDirection.ltr,
+    return AdaptiveSpinnerLayout(
       children: [
         widget.options.hideHours ? const SizedBox() : _leftPadding(),
         widget.options.hideHours ? const SizedBox() : _hourPicker(),
@@ -249,15 +248,18 @@ class _SpinnerDurationPickerState extends State<SpinnerDurationPicker> {
     );
   }
 
-  SizedBox _durationSeparator(BuildContext context, String separator) {
+  Widget _durationSeparator(BuildContext context, String separator) {
     double separatorWidth = widget.options.elementsSpace;
 
     if (separator == '.' && !widget.options.hideMilliseconds) {
       separatorWidth = widget.options.elementsSpace * 0.4;
     }
-    return SizedBox(
-      width: separatorWidth,
+    // Reserve [separatorWidth] for spacing but allow the box to grow so a wide
+    // unit glyph (locale/font/text-scale dependent) is never clipped.
+    return ConstrainedBox(
+      constraints: BoxConstraints(minWidth: separatorWidth),
       child: Row(
+        mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(width: 0.15 * widget.options.elementsSpace),

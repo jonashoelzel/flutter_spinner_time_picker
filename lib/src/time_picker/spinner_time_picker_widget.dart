@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_spinner_time_picker/src/always_change_value_notifier.dart';
 
+import '../common/adaptive_spinner_layout.dart';
 import '../raw_number_spinner.dart';
 
 class SpinnerTimePickerOptions {
@@ -118,9 +119,7 @@ class _SpinnerTimePickerState extends State<SpinnerTimePicker> {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      textDirection: TextDirection.ltr,
+    return AdaptiveSpinnerLayout(
       children: [
         _hourPicker(),
         _timeSeparator(context),
@@ -162,15 +161,22 @@ class _SpinnerTimePickerState extends State<SpinnerTimePicker> {
     );
   }
 
-  SizedBox _timeSeparator(BuildContext context) {
-    return SizedBox(
-      width: widget.options.elementsSpace,
-      child: Center(
-        child: Text(
-          ':',
-          style: TextStyle(
-              fontSize: 23, color: Theme.of(context).colorScheme.primary),
-        ),
+  Widget _timeSeparator(BuildContext context) {
+    // Reserve [elementsSpace] for spacing but shrink-wrap (and centre) the
+    // glyph so it is never clipped and never forced to an unbounded size when
+    // measured inside the adaptive layout's FittedBox.
+    return ConstrainedBox(
+      constraints: BoxConstraints(minWidth: widget.options.elementsSpace),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            ':',
+            style: TextStyle(
+                fontSize: 23, color: Theme.of(context).colorScheme.primary),
+          ),
+        ],
       ),
     );
   }

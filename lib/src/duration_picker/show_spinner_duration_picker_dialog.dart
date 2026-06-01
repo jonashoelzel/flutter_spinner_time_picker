@@ -14,7 +14,14 @@ class SpinnerDurationPickerDialogOptions {
   final ButtonStyle? buttonStyle;
   final TextStyle buttonTextStyle;
   final double height;
-  final double width;
+
+  /// Width of the dialog content.
+  ///
+  /// When `null` (the default) the content sizes itself to the picker's
+  /// intrinsic width and is capped at the available dialog width, so the
+  /// layout always fits regardless of which fields are shown, locale or text
+  /// scale. Provide a value only to force a fixed width.
+  final double? width;
   final EdgeInsets? contentPadding;
   final String cancelButtonLabel;
   final String okButtonLabel;
@@ -30,7 +37,7 @@ class SpinnerDurationPickerDialogOptions {
     this.buttonStyle,
     required this.buttonTextStyle,
     required this.height,
-    required this.width,
+    this.width,
     this.contentPadding,
     required this.cancelButtonLabel,
     required this.okButtonLabel,
@@ -55,7 +62,6 @@ class SpinnerDurationPickerDialogOptions {
         color: colorScheme.primary,
       ),
       height: 0.25 * size.height,
-      width: 0.85 * size.width,
       cancelButtonLabel: 'Cancel',
       okButtonLabel: "Done",
       infinityButtonLabel: "Infinite",
