@@ -210,9 +210,12 @@ class _RawNumberSpinnerState extends State<RawNumberSpinner> {
             final wrappedIndex = (index % widget.maxValue) *
                 widget.steps; // Wrap around the values
 
+            final isInfinityItem =
+                widget.options.showInfinityBetweenSmallestAndLargestValue &&
+                    wrappedIndex == (widget.maxValue - 1) * widget.steps;
+
             final String numberText;
-            if (widget.options.showInfinityBetweenSmallestAndLargestValue &&
-                wrappedIndex == (widget.maxValue - 1) * widget.steps) {
+            if (isInfinityItem) {
               numberText = '∞';
             } else if (widget.options.padNumbers) {
               // Display with leading zero
@@ -221,10 +224,17 @@ class _RawNumberSpinnerState extends State<RawNumberSpinner> {
               numberText = wrappedIndex.toString();
             }
 
+            // Once ∞ is selected the value is stored as -1, so it can never
+            // equal the item's (positive) wrappedIndex. Match the infinity
+            // item against the -1 sentinel so it highlights when selected.
+            final isSelected = isInfinityItem
+                ? _selectedValue == -1
+                : wrappedIndex == _selectedValue;
+
             return Center(
               child: Text(
                 numberText,
-                style: wrappedIndex == _selectedValue
+                style: isSelected
                     ? widget.options.selectedTextStyle
                     : widget.options.nonSelectedTextStyle,
               ),
