@@ -210,9 +210,10 @@ class _RawNumberSpinnerState extends State<RawNumberSpinner> {
             final wrappedIndex = (index % widget.maxValue) *
                 widget.steps; // Wrap around the values
 
+            final infinitySlotValue = (widget.maxValue - 1) * widget.steps;
             final isInfinityItem =
                 widget.options.showInfinityBetweenSmallestAndLargestValue &&
-                    wrappedIndex == (widget.maxValue - 1) * widget.steps;
+                    wrappedIndex == infinitySlotValue;
 
             final String numberText;
             if (isInfinityItem) {
@@ -224,11 +225,12 @@ class _RawNumberSpinnerState extends State<RawNumberSpinner> {
               numberText = wrappedIndex.toString();
             }
 
-            // Once ∞ is selected the value is stored as -1, so it can never
-            // equal the item's (positive) wrappedIndex. Match the infinity
-            // item against the -1 sentinel so it highlights when selected.
+            // ∞ is represented two ways: the -1 sentinel (set once the user
+            // scrolls onto it) and its positive slot value (used to position
+            // the wheel when the dialog opens already on ∞). Treat either as
+            // "infinity selected" so the item highlights in both cases.
             final isSelected = isInfinityItem
-                ? _selectedValue == -1
+                ? _selectedValue == -1 || _selectedValue == infinitySlotValue
                 : wrappedIndex == _selectedValue;
 
             return Center(
