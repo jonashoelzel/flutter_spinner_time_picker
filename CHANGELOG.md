@@ -40,3 +40,8 @@
 * Added widget regression tests asserting the time (12h/24h), duration and
   number pickers never overflow when rendered in a too-narrow box, and that the
   box grows to pad a large font.
+* `showSpinnerNumberPicker` now accepts `useRootNavigator` (default `false`),
+  matching the time and duration pickers. It previously fell back to Flutter's
+  default of `true`, so in a nested-navigator host — an embedded app, a
+  Widgetbook use case — the dialog was pushed above the host instead of inside
+  it. Regression tests cover all three pickers.

@@ -111,6 +111,7 @@ Future<int?> showSpinnerNumberPicker(
   int maxValue = 100,
   int steps = 1,
   bool barrierDismissible = true,
+  bool useRootNavigator = false,
   SpinnerNumberPickerDialogOptions? options,
 }) async {
   final effectiveOptions =
@@ -122,6 +123,7 @@ Future<int?> showSpinnerNumberPicker(
   // Show the dialog and get the selected number when the dialog is dismissed
   return showDialog<int?>(
     context: context,
+    useRootNavigator: useRootNavigator,
     barrierDismissible: barrierDismissible,
     builder: (context) {
       return Theme(
