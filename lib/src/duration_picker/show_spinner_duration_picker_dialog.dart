@@ -117,7 +117,12 @@ Future<Duration?> showSpinnerDurationPicker(
       options ?? SpinnerDurationPickerDialogOptions.fromContext(context);
 
   // Initialize selectedDuration variable
-  Duration selectedDuration = initDuration ?? Duration.zero;
+  final initialDuration = initDuration ?? Duration.zero;
+  Duration selectedDuration = initialDuration == INFINITY_DURATION
+      ? INFINITY_DURATION
+      : Duration(
+          milliseconds: (initialDuration.inMilliseconds / 100).round() * 100,
+        );
 
   // Show the dialog and get the selected duration when the dialog is dismissed
   return showDialog<Duration?>(
