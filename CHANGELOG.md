@@ -45,3 +45,8 @@
   default of `true`, so in a nested-navigator host — an embedded app, a
   Widgetbook use case — the dialog was pushed above the host instead of inside
   it. Regression tests cover all three pickers.
+* The duration picker can show days: `SpinnerDurationPickerOptions.showDays`
+  adds a days wheel (`d`) in front of the hours, whose range `maxDays` sets
+  (default 100, i.e. 0–99 days). With days shown the hours wheel wraps at 23
+  instead of counting to 99. Off by default, so existing pickers are
+  unchanged.

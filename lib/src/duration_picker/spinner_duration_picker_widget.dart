@@ -12,6 +12,14 @@ class SpinnerDurationPickerOptions {
   final bool hideMinutes;
   final bool hideHours;
   final bool hideMilliseconds;
+
+  /// Adds a days wheel in front of the hours. The hours wheel then wraps at
+  /// 23 instead of counting up to 99, so long durations read as days.
+  final bool showDays;
+
+  /// Number of values the days wheel offers, starting at 0 — the default of
+  /// 100 allows up to 99 days. Only used with [showDays].
+  final int maxDays;
   final bool enableHapticFeedback;
   final bool showInfinityBetweenSmallestAndLargestValue;
 
@@ -22,9 +30,11 @@ class SpinnerDurationPickerOptions {
     this.hideMinutes = false,
     this.hideHours = false,
     this.hideMilliseconds = true,
+    this.showDays = false,
+    this.maxDays = 100,
     this.enableHapticFeedback = true,
     this.showInfinityBetweenSmallestAndLargestValue = false,
-  });
+  }) : assert(maxDays > 0, 'maxDays must offer at least one value');
 
   factory SpinnerDurationPickerOptions.fromContext(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -42,6 +52,8 @@ class SpinnerDurationPickerOptions {
     bool? hideMinutes,
     bool? hideHours,
     bool? hideMilliseconds,
+    bool? showDays,
+    int? maxDays,
     bool? enableHapticFeedback,
     bool? showInfinityBetweenSmallestAndLargestValue,
   }) {
@@ -58,6 +70,8 @@ class SpinnerDurationPickerOptions {
       hideMinutes: hideMinutes ?? this.hideMinutes,
       hideHours: hideHours ?? this.hideHours,
       hideMilliseconds: hideMilliseconds ?? this.hideMilliseconds,
+      showDays: showDays ?? this.showDays,
+      maxDays: maxDays ?? this.maxDays,
       enableHapticFeedback: enableHapticFeedback ?? this.enableHapticFeedback,
       showInfinityBetweenSmallestAndLargestValue:
           showInfinityBetweenSmallestAndLargestValue ??
@@ -90,6 +104,10 @@ class SpinnerDurationPicker extends StatefulWidget {
 
 // Define the state for the SpinnerDurationPicker widget
 class _SpinnerDurationPickerState extends State<SpinnerDurationPicker> {
+  int selectedDay = 0;
+  AlwaysChangeValueNotifier<int> selectedDayNotifier =
+      AlwaysChangeValueNotifier<int>(0);
+
   int selectedHour = 0;
   AlwaysChangeValueNotifier<int> selectedHourNotifier =
       AlwaysChangeValueNotifier<int>(0);
@@ -137,7 +155,13 @@ class _SpinnerDurationPickerState extends State<SpinnerDurationPicker> {
     final roundedMilliseconds = (totalMilliseconds / 100).round() * 100;
     final roundedDuration = Duration(milliseconds: roundedMilliseconds);
 
-    selectedHourNotifier.value = selectedHour = roundedDuration.inHours;
+    if (widget.options.showDays) {
+      selectedDayNotifier.value = selectedDay = roundedDuration.inDays;
+      selectedHourNotifier.value =
+          selectedHour = roundedDuration.inHours.remainder(24);
+    } else {
+      selectedHourNotifier.value = selectedHour = roundedDuration.inHours;
+    }
     selectedMinuteNotifier.value =
         selectedMinute = roundedDuration.inMinutes.remainder(60);
     selectedSecondNotifier.value =
@@ -152,7 +176,14 @@ class _SpinnerDurationPickerState extends State<SpinnerDurationPicker> {
   Widget build(BuildContext context) {
     return AdaptiveSpinnerLayout(
       children: [
-        widget.options.hideHours ? const SizedBox() : _leftPadding(),
+        if (widget.options.showDays) ...[
+          _leftPadding(),
+          _dayPicker(),
+          _durationSeparator(context, 'd'),
+        ],
+        widget.options.hideHours || widget.options.showDays
+            ? const SizedBox()
+            : _leftPadding(),
         widget.options.hideHours ? const SizedBox() : _hourPicker(),
         widget.options.hideHours
             ? const SizedBox()
@@ -234,9 +265,24 @@ class _SpinnerDurationPickerState extends State<SpinnerDurationPicker> {
     );
   }
 
+  RawNumberSpinner _dayPicker() {
+    return RawNumberSpinner(
+      maxValue: widget.options.maxDays,
+      forceUpdateValueNotifier: selectedDayNotifier,
+      options: widget.options.spinnerOptions,
+      onSelectedItemChanged: (value) {
+        setState(() {
+          selectedDay = value;
+        });
+        setSelectedDuration();
+      },
+    );
+  }
+
   RawNumberSpinner _hourPicker() {
     return RawNumberSpinner(
-      maxValue: 100,
+      // With a days wheel in front, hours only fill up a day.
+      maxValue: widget.options.showDays ? 24 : 100,
       forceUpdateValueNotifier: selectedHourNotifier,
       options: widget.options.spinnerOptions,
       onSelectedItemChanged: (value) async {
@@ -287,6 +333,7 @@ class _SpinnerDurationPickerState extends State<SpinnerDurationPicker> {
 
   void setSelectedDuration() {
     widget.onChangedSelectedDuration(Duration(
+      days: widget.options.showDays ? selectedDay : 0,
       hours: selectedHour,
       minutes: selectedMinute,
       seconds: selectedSecond,
