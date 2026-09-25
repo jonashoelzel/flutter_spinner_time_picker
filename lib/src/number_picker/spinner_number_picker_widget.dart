@@ -50,6 +50,7 @@ class SpinnerNumberPickerOptions {
 class SpinnerNumberPicker extends StatelessWidget {
   final AlwaysChangeValueNotifier<int> _forceUpdateValueNotifier;
   final int maxValue;
+  final int minValue;
   final int steps;
   final SpinnerNumberPickerOptions options;
   final void Function(int selected) onChangedSelectedValue;
@@ -58,6 +59,7 @@ class SpinnerNumberPicker extends StatelessWidget {
     AlwaysChangeValueNotifier<int>? forceUpdateValueNotifier,
     int? initValue,
     required this.maxValue,
+    this.minValue = 0,
     required this.options,
     required this.onChangedSelectedValue,
     this.steps = 1,
@@ -69,7 +71,7 @@ class SpinnerNumberPicker extends StatelessWidget {
         ),
         _forceUpdateValueNotifier = forceUpdateValueNotifier ??
             AlwaysChangeValueNotifier<int>(
-              initValue == -1 ? maxValue : initValue!,
+              initValue!,
             );
 
   @override
@@ -79,6 +81,7 @@ class SpinnerNumberPicker extends StatelessWidget {
         RawNumberSpinner(
           forceUpdateValueNotifier: _forceUpdateValueNotifier,
           maxValue: maxValue,
+          minValue: minValue,
           steps: steps,
           options: options.spinnerOptions,
           onSelectedItemChanged: onChangedSelectedValue,

@@ -109,6 +109,9 @@ Future<int?> showSpinnerNumberPicker(
   BuildContext context, {
   int? initValue,
   int maxValue = 100,
+
+  /// Inclusive lower bound. The upper bound is exclusive.
+  int minValue = 0,
   int steps = 1,
   bool barrierDismissible = true,
   bool useRootNavigator = false,
@@ -118,7 +121,7 @@ Future<int?> showSpinnerNumberPicker(
       options ?? SpinnerNumberPickerDialogOptions.fromContext(context);
 
   // Initialize selectedValue and pressedButton variables
-  int selectedValue = initValue ?? 0;
+  int selectedValue = initValue ?? minValue;
 
   // Show the dialog and get the selected number when the dialog is dismissed
   return showDialog<int?>(
@@ -143,6 +146,7 @@ Future<int?> showSpinnerNumberPicker(
               },
               initValue: selectedValue,
               maxValue: maxValue,
+              minValue: minValue,
               steps: steps,
               options: effectiveOptions.pickerOptions,
             ),

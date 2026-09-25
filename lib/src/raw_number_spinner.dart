@@ -128,11 +128,25 @@ double resolveSpinnerBoxWidth({
   return max(options.width, contentWidth);
 }
 
+int _numberSpinnerItemCount(
+  int minValue,
+  int maxValue,
+  int steps,
+  bool includeInfinity,
+) {
+  final firstSteppedValue = (minValue ~/ steps + 1) * steps;
+  final steppedCount = firstSteppedValue < maxValue
+      ? (maxValue - 1 - firstSteppedValue) ~/ steps + 1
+      : 0;
+  return 1 + steppedCount + (includeInfinity ? 1 : 0);
+}
+
 // Define a StatefulWidget for a time element picker widget
 class RawNumberSpinner extends StatefulWidget {
   // Initialize parameters for the time element picker
   final AlwaysChangeValueNotifier<int> _forceUpdateValueNotifier;
   final int maxValue;
+  final int minValue;
   final int steps;
   final RawNumberSpinnerOptions options;
   final void Function(int value) onSelectedItemChanged;
@@ -140,12 +154,19 @@ class RawNumberSpinner extends StatefulWidget {
   RawNumberSpinner({
     AlwaysChangeValueNotifier<int>? forceUpdateValueNotifier,
     required int maxValue,
+    this.minValue = 0,
     required this.options,
     required this.onSelectedItemChanged,
     this.steps = 1,
     super.key,
-  })  : maxValue = (maxValue / steps).ceil() +
-            (options.showInfinityBetweenSmallestAndLargestValue ? 1 : 0),
+  })  : assert(steps > 0),
+        assert(minValue >= 0 && minValue < maxValue),
+        maxValue = _numberSpinnerItemCount(
+          minValue,
+          maxValue,
+          steps,
+          options.showInfinityBetweenSmallestAndLargestValue,
+        ),
         _forceUpdateValueNotifier =
             forceUpdateValueNotifier ?? AlwaysChangeValueNotifier<int>(0);
 
@@ -160,7 +181,15 @@ class _RawNumberSpinnerState extends State<RawNumberSpinner> {
   late int _selectedValue;
   late AlwaysChangeValueNotifier<int> forceUpdateValueNotifier;
 
-  int _selectedScrollControllerValue() => _selectedValue ~/ widget.steps;
+  int _valueAt(int index) => index == 0
+      ? widget.minValue
+      : ((widget.minValue ~/ widget.steps) + index) * widget.steps;
+
+  int _selectedScrollControllerValue() {
+    if (_selectedValue == -1) return widget.maxValue - 1;
+    if (_selectedValue == widget.minValue) return 0;
+    return _selectedValue ~/ widget.steps - widget.minValue ~/ widget.steps;
+  }
 
   @override
   void initState() {
@@ -189,7 +218,7 @@ class _RawNumberSpinnerState extends State<RawNumberSpinner> {
   Widget build(BuildContext context) {
     final boxWidth = resolveSpinnerBoxWidth(
       options: widget.options,
-      largestValue: (widget.maxValue - 1) * widget.steps,
+      largestValue: _valueAt(widget.maxValue - 1),
       textScaler: MediaQuery.textScalerOf(context),
     );
 
@@ -207,10 +236,9 @@ class _RawNumberSpinnerState extends State<RawNumberSpinner> {
         physics: const FixedExtentScrollPhysics(),
         childDelegate: ListWheelChildBuilderDelegate(
           builder: (context, index) {
-            final wrappedIndex = (index % widget.maxValue) *
-                widget.steps; // Wrap around the values
+            final wrappedIndex = _valueAt(index % widget.maxValue);
 
-            final infinitySlotValue = (widget.maxValue - 1) * widget.steps;
+            final infinitySlotValue = _valueAt(widget.maxValue - 1);
             final isInfinityItem =
                 widget.options.showInfinityBetweenSmallestAndLargestValue &&
                     wrappedIndex == infinitySlotValue;
@@ -246,10 +274,10 @@ class _RawNumberSpinnerState extends State<RawNumberSpinner> {
         onSelectedItemChanged: (index) {
           setState(
             () {
-              _selectedValue = (index % widget.maxValue) * widget.steps;
+              _selectedValue = _valueAt(index % widget.maxValue);
 
               if (widget.options.showInfinityBetweenSmallestAndLargestValue &&
-                  _selectedValue == (widget.maxValue - 1) * widget.steps) {
+                  _selectedValue == _valueAt(widget.maxValue - 1)) {
                 // when infinity is selected the value is -1
                 _selectedValue = -1;
               }
@@ -273,13 +301,12 @@ class _RawNumberSpinnerState extends State<RawNumberSpinner> {
   }
 
   String _getPaddedNumber(int number) => number.toString().padLeft(
-      log10((widget.maxValue -
-                  (widget.options.showInfinityBetweenSmallestAndLargestValue
-                      ? 1
-                      : 0)) *
-              widget.steps)
-          .ceil(),
-      '0');
-
-  double log10(num x) => log(x) / ln10;
+        _valueAt(widget.maxValue -
+                (widget.options.showInfinityBetweenSmallestAndLargestValue
+                    ? 2
+                    : 1))
+            .toString()
+            .length,
+        '0',
+      );
 }
