@@ -30,6 +30,11 @@ class RawNumberSpinnerOptions {
   /// (including `0`) to override.
   final double? digitHorizontalPadding;
 
+  /// Text shown for each value instead of the (padded) number, e.g. `f/5.6`
+  /// for an index into a list of apertures. Takes precedence over
+  /// [padNumbers].
+  final String Function(int value)? labelBuilder;
+
   const RawNumberSpinnerOptions({
     required this.height,
     required this.width,
@@ -41,6 +46,7 @@ class RawNumberSpinnerOptions {
     this.enableHapticFeedback = true,
     this.showInfinityBetweenSmallestAndLargestValue = false,
     this.digitHorizontalPadding,
+    this.labelBuilder,
   });
 
   /// The effective per-side horizontal padding, resolving the font-proportional
@@ -85,6 +91,7 @@ class RawNumberSpinnerOptions {
     bool? enableHapticFeedback,
     bool? showInfinityBetweenSmallestAndLargestValue,
     double? digitHorizontalPadding,
+    String Function(int value)? labelBuilder,
   }) {
     return RawNumberSpinnerOptions(
       height: height ?? this.height,
@@ -100,14 +107,16 @@ class RawNumberSpinnerOptions {
               this.showInfinityBetweenSmallestAndLargestValue,
       digitHorizontalPadding:
           digitHorizontalPadding ?? this.digitHorizontalPadding,
+      labelBuilder: labelBuilder ?? this.labelBuilder,
     );
   }
 }
 
 /// Computes the width of a spinner's coloured background box.
 ///
-/// Measures the widest rendered digit string (derived from [largestValue],
-/// honouring the current [textScaler]) and adds
+/// Measures the widest rendered digit string (derived from [largestValue], or
+/// the widest of [labels] when given, honouring the current [textScaler]) and
+/// adds
 /// [RawNumberSpinnerOptions.effectiveDigitHorizontalPadding] on each side. The
 /// configured [RawNumberSpinnerOptions.width] is used only as a floor, so the
 /// numbers always keep their breathing room regardless of font or text scale.
@@ -115,16 +124,21 @@ double resolveSpinnerBoxWidth({
   required RawNumberSpinnerOptions options,
   required int largestValue,
   required TextScaler textScaler,
+  Iterable<String>? labels,
 }) {
-  final digitCount = max(1, largestValue.abs().toString().length);
-  final painter = TextPainter(
-    text: TextSpan(text: '8' * digitCount, style: options.selectedTextStyle),
-    textDirection: TextDirection.ltr,
-    textScaler: textScaler,
-  )..layout();
+  double measure(String text) => (TextPainter(
+        text: TextSpan(text: text, style: options.selectedTextStyle),
+        textDirection: TextDirection.ltr,
+        textScaler: textScaler,
+      )..layout())
+          .width;
 
+  final digitCount = max(1, largestValue.abs().toString().length);
+  final textWidth = labels == null
+      ? measure('8' * digitCount)
+      : labels.map(measure).fold(0.0, max);
   final contentWidth =
-      painter.width + 2 * options.effectiveDigitHorizontalPadding;
+      textWidth + 2 * options.effectiveDigitHorizontalPadding;
   return max(options.width, contentWidth);
 }
 
@@ -216,10 +230,17 @@ class _RawNumberSpinnerState extends State<RawNumberSpinner> {
 
   @override
   Widget build(BuildContext context) {
+    final labelBuilder = widget.options.labelBuilder;
     final boxWidth = resolveSpinnerBoxWidth(
       options: widget.options,
       largestValue: _valueAt(widget.maxValue - 1),
       textScaler: MediaQuery.textScalerOf(context),
+      labels: labelBuilder == null
+          ? null
+          : [
+              for (var i = 0; i < widget.maxValue; i++)
+                labelBuilder(_valueAt(i)),
+            ],
     );
 
     return Container(
@@ -246,6 +267,8 @@ class _RawNumberSpinnerState extends State<RawNumberSpinner> {
             final String numberText;
             if (isInfinityItem) {
               numberText = '∞';
+            } else if (labelBuilder != null) {
+              numberText = labelBuilder(wrappedIndex);
             } else if (widget.options.padNumbers) {
               // Display with leading zero
               numberText = _getPaddedNumber(wrappedIndex);
