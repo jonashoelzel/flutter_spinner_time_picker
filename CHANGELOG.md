@@ -50,3 +50,7 @@
   (default 100, i.e. 0–99 days). With days shown the hours wheel wraps at 23
   instead of counting to 99. Off by default, so existing pickers are
   unchanged.
+* `SpinnerDurationPickerDialogOptions.hintBuilder` adds a hint below the wheels
+  of the duration dialog, rebuilt on every wheel change, for example to warn
+  that a value will not be used as picked. The hint wraps to the width of the
+  wheels. Without a builder, or when it returns `null`, the dialog is unchanged.

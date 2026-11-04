@@ -1,6 +1,7 @@
 // ignore_for_file: no_leading_underscores_for_local_identifiers
 
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 export 'spinner_duration_picker_widget.dart' show INFINITY_DURATION;
 
 // Import custom widget used in the dialog
@@ -29,6 +30,14 @@ class SpinnerDurationPickerDialogOptions {
   final bool showInfinityButton;
   final SpinnerDurationPickerOptions pickerOptions;
 
+  /// Builds a hint below the wheels from the value they show right now. It is
+  /// called again on every wheel change, so it can react while the user is
+  /// still scrolling. Return `null` to show nothing; the dialog then looks as
+  /// if there was no builder.
+  ///
+  /// The hint wraps to the width of the wheels and never widens the dialog.
+  final Widget? Function(BuildContext context, Duration selected)? hintBuilder;
+
   const SpinnerDurationPickerDialogOptions({
     required this.title,
     required this.backgroundColor,
@@ -44,6 +53,7 @@ class SpinnerDurationPickerDialogOptions {
     required this.infinityButtonLabel,
     required this.showInfinityButton,
     required this.pickerOptions,
+    this.hintBuilder,
   });
 
   factory SpinnerDurationPickerDialogOptions.fromContext(BuildContext context) {
@@ -85,6 +95,7 @@ class SpinnerDurationPickerDialogOptions {
     String? infinityButtonLabel,
     bool? showInfinityButton,
     SpinnerDurationPickerOptions? pickerOptions,
+    Widget? Function(BuildContext context, Duration selected)? hintBuilder,
   }) {
     return SpinnerDurationPickerDialogOptions(
       title: title ?? this.title,
@@ -101,6 +112,7 @@ class SpinnerDurationPickerDialogOptions {
       infinityButtonLabel: infinityButtonLabel ?? this.infinityButtonLabel,
       showInfinityButton: showInfinityButton ?? this.showInfinityButton,
       pickerOptions: pickerOptions ?? this.pickerOptions,
+      hintBuilder: hintBuilder ?? this.hintBuilder,
     );
   }
 }
@@ -138,16 +150,12 @@ Future<Duration?> showSpinnerDurationPicker(
           title: Center(
               child: Text(effectiveOptions.title,
                   style: effectiveOptions.titleStyle)),
-          content: SizedBox(
-            height: effectiveOptions.height,
-            width: effectiveOptions.width,
-            child: SpinnerDurationPicker(
-              initDuration: selectedDuration,
-              options: effectiveOptions.pickerOptions,
-              onChangedSelectedDuration: (duration) {
-                selectedDuration = duration;
-              },
-            ),
+          content: _DurationPickerContent(
+            initDuration: selectedDuration,
+            options: effectiveOptions,
+            onChanged: (duration) {
+              selectedDuration = duration;
+            },
           ),
           actions: [
             if (effectiveOptions.showInfinityButton)
@@ -174,4 +182,80 @@ Future<Duration?> showSpinnerDurationPicker(
       );
     },
   );
+}
+
+/// The wheels and, with a [SpinnerDurationPickerDialogOptions.hintBuilder], the
+/// hint below them.
+class _DurationPickerContent extends StatefulWidget {
+  const _DurationPickerContent({
+    required this.initDuration,
+    required this.options,
+    required this.onChanged,
+  });
+
+  final Duration initDuration;
+  final SpinnerDurationPickerDialogOptions options;
+  final ValueChanged<Duration> onChanged;
+
+  @override
+  State<_DurationPickerContent> createState() => _DurationPickerContentState();
+}
+
+class _DurationPickerContentState extends State<_DurationPickerContent> {
+  late Duration _selected = widget.initDuration;
+
+  @override
+  Widget build(BuildContext context) {
+    final hintBuilder = widget.options.hintBuilder;
+    final wheels = SizedBox(
+      height: widget.options.height,
+      width: widget.options.width,
+      child: SpinnerDurationPicker(
+        initDuration: widget.initDuration,
+        options: widget.options.pickerOptions,
+        onChangedSelectedDuration: (duration) {
+          widget.onChanged(duration);
+          if (hintBuilder != null) setState(() => _selected = duration);
+        },
+      ),
+    );
+    if (hintBuilder == null) return wheels;
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        wheels,
+        _NoIntrinsicWidth(
+          // The dialog is centered, so the wheels move when it grows. They
+          // can be under the user's finger, so that must not be a jump.
+          child: AnimatedSize(
+            duration: const Duration(milliseconds: 150),
+            curve: Curves.easeOut,
+            alignment: Alignment.topCenter,
+            child: hintBuilder(context, _selected) ?? const SizedBox.shrink(),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// Keeps [child] out of the dialog's width: an [AlertDialog] sizes itself to
+/// the intrinsic width of its content, which for a text is its single-line
+/// width. The child takes the width the rest of the content settles on.
+class _NoIntrinsicWidth extends SingleChildRenderObjectWidget {
+  const _NoIntrinsicWidth({required Widget super.child});
+
+  @override
+  RenderObject createRenderObject(BuildContext context) =>
+      _RenderNoIntrinsicWidth();
+}
+
+class _RenderNoIntrinsicWidth extends RenderProxyBox {
+  @override
+  double computeMinIntrinsicWidth(double height) => 0;
+
+  @override
+  double computeMaxIntrinsicWidth(double height) => 0;
 }
